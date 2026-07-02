@@ -1,0 +1,161 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ── Listings ───────────────────────────────────────────────
+    // Public read. Admin-only write.
+    // Listing status updates from Cloud Functions use Admin SDK (bypasses rules).
+    match /listings/{id} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Guest profiles ─────────────────────────────────────────
+    // Each user reads/writes their own doc. Admin can read all (Guests panel).
+    match /guestProfiles/{uid} {
+      allow read:  if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    // ── Bookings ───────────────────────────────────────────────
+    // Writes come exclusively from the Cloud Function (Admin SDK bypasses rules).
+    // Owners and admins can read. Admins can update status (approve / reject).
+    match /bookings/{id} {
+      allow read: if isAdmin() ||
+        (isSignedIn() && (
+          resource.data.guestUid        == request.auth.uid ||
+          resource.data.guestEmail_canon == request.auth.token.email.lower()
+        ));
+      allow update: if isAdmin();
+      allow create: if false;          // Cloud Function only
+      allow delete: if isAdmin();      // Admin panel hard-delete
+    }
+
+    // ── Security / audit log ───────────────────────────────────
+    // Written only by Cloud Functions (Admin SDK). Admins can read.
+    match /security_logs/{id} {
+      allow read:              if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    // ── Contact inquiries ──────────────────────────────────────
+    // Anyone can submit a contact form. Admins can read and manage.
+    match /inquiries/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Site settings (siteConfig, hostCard, siteStats) ───────
+    // All writes come from the admin panel or Cloud Functions (Admin SDK).
+    match /settings/{id} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Neighbourhood spots ────────────────────────────────────
+    match /neighbourhood/{id} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Gallery ────────────────────────────────────────────────
+    match /gallery/{id} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Testimonials ───────────────────────────────────────────
+    match /testimonials/{id} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Lagos-interest newsletter ──────────────────────────────
+    match /lagos_interest/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── IP / visit logs ────────────────────────────────────────
+    // Written exclusively by the logVisitor Cloud Function (Admin SDK).
+    match /ipLogs/{id} {
+      allow create: if false;
+      allow read:   if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ── Email OTP codes ────────────────────────────────────────
+    // Written and deleted exclusively by Cloud Functions (Admin SDK).
+    // No client read or write.
+    match /email_otps/{uid} {
+      allow read, write: if false;
+    }
+
+    // ── Admin UID list ─────────────────────────────────────────
+    // Managed via Firebase console only. No client access.
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+
+    // ── Guest booking sessions (guest checkout path) ────────────
+    // Written and read exclusively by Cloud Functions (Admin SDK).
+    match /pending_bookings/{id} {
+      allow read, write: if false;
+    }
+
+    // ── Guest booking rate limits ───────────────────────────────
+    // Keyed by SHA-256(email). Admin SDK only.
+    match /booking_rate_limits/{id} {
+      allow read, write: if false;
+    }
+
+    // ── View / visit rate limits ────────────────────────────────
+    // Keyed by hashed IP. Admin SDK only.
+    match /view_rate_limits/{id} {
+      allow read, write: if false;
+    }
+
+    // ── Admin-blocked dates (subcollection of listings) ────────
+    // Public read so the availability calendar can query without auth.
+    // Admin SDK handles writes from the admin panel (auth claim checked here too).
+    match /listings/{listingId}/blocks/{blockId} {
+      allow read:   if true;
+      allow write:  if isAdmin();
+    }
+
+    // ── Confirmed booking date ranges (subcollection of listings) ──
+    // Stores only {checkIn, checkOut} — no guest PII — so the public
+    // availability calendar can block booked dates without auth.
+    // All writes come exclusively from Cloud Functions (Admin SDK).
+    match /listings/{listingId}/booked_ranges/{bookingId} {
+      allow read:           if true;
+      allow create, update: if false;   // Cloud Functions (Admin SDK) only
+      allow delete:         if isAdmin(); // Admin panel hard-delete
+    }
+
+    // ── Incomplete payments (payment received, booking not yet confirmed) ──
+    // Anyone can create (browser writes immediately on Paystack success).
+    // Only admins can read or modify.
+    match /incomplete_payments/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Default deny ───────────────────────────────────────────
+    // Any collection not explicitly matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,3231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accent Homes — Admin</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=League+Spartan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ash:       #2E2E2E;
+  --ash-mid:   #4A4A4A;
+  --ash-light: #6B6B6B;
+  --white:     #FFFFFF;
+  --off-white: #F7F7F7;
+  --border:    #E8E8E8;
+  --bronze:    #b55737;
+  --bronze-dk: #8f3f24;
+  --bronze-lt: #c96b47;
+  --navy:      #2E2E2E;
+  --gold:      #b55737;
+  --gold-dk:   #8f3f24;
+  --cream:     #F7F7F7;
+  --sand:      #EFEFEF;
+  --muted:     #9E9E9E;
+  --green:     #2D6A4F;
+  --red:       #C0392B;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'League Spartan', sans-serif;
+  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 2px 16px rgba(46,46,46,0.07);
+  --shadow-md: 0 8px 40px rgba(46,46,46,0.12);
+  --shadow-lg: 0 24px 64px rgba(46,46,46,0.16);
+  --radius: 6px;
+  --radius-lg: 14px;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --white:     #F0EDE8;
+  --off-white: #141414;
+  --ash:       #C8C5C0;
+  --ash-mid:   #AAAAAA;
+  --ash-light: #888888;
+  --border:    #242424;
+  --cream:     #1A1A1A;
+  --sand:      #1E1E1E;
+  --muted:     #666666;
+}
+[data-theme="dark"] body { background:#141414; }
+[data-theme="dark"] .admin-sidebar { background:#0E0E0E; border-right:1px solid #1E1E1E; }
+[data-theme="dark"] .admin-main { background:#141414; }
+[data-theme="dark"] .admin-card { background:#1A1A1A; border-color:#242424; }
+[data-theme="dark"] .admin-topbar { background:#141414; border-bottom-color:#242424; }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { background:#1E1E1E !important; color:#C8C5C0 !important; border-color:#333 !important; }
+[data-theme="dark"] .modal { background:#1A1A1A; }
+[data-theme="dark"] .modal-header { border-bottom-color:#242424; }
+[data-theme="dark"] .modal-footer { border-top-color:#242424; }
+[data-theme="dark"] table th { background:#0E0E0E; }
+[data-theme="dark"] table tr:hover td { background:#1E1E1E; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--font-body); background: var(--off-white); color: var(--ash); line-height: 1.6; }
+button { cursor: pointer; font-family: var(--font-body); }
+input, textarea, select { font-family: var(--font-body); }
+
+/* ── ADMIN LOGIN ── */
+.admin-login {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--ash) 0%, #3d2b1f 100%);
+  padding: 24px;
+}
+.admin-login-card {
+  background: var(--white); padding: 48px; border-radius: var(--radius-lg);
+  width: 100%; max-width: 420px; box-shadow: var(--shadow-lg);
+}
+.logo-mark {
+  font-family: var(--font-display); font-size: 1.9rem; font-weight: 700;
+  color: var(--ash); text-align: center; margin-bottom: 4px;
+  display: block; letter-spacing: 0.02em;
+}
+.logo-sub {
+  text-align: center; font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--bronze); margin-bottom: 36px; display: block;
+}
+.admin-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.admin-form-group label {
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ash-light); font-weight: 600;
+}
+.admin-form-group input {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 12px 16px; font-size: 0.9rem; outline: none;
+  transition: border-color var(--transition); color: var(--ash);
+  background: var(--off-white);
+}
+.admin-form-group input:focus { border-color: var(--bronze); background: var(--white); }
+.admin-login-btn {
+  width: 100%; background: var(--ash); color: var(--white);
+  padding: 14px; border-radius: var(--radius);
+  font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer;
+  transition: all var(--transition); margin-top: 8px;
+  letter-spacing: 0.08em; font-family: var(--font-body);
+}
+.admin-login-btn:hover { background: var(--bronze); transform: translateY(-1px); }
+.login-error {
+  color: var(--red); font-size: 0.8rem; text-align: center;
+  margin-top: 12px; display: none;
+}
+.back-link {
+  display: block; text-align: center; margin-top: 20px;
+  font-size: 0.8rem; color: var(--ash-light); text-decoration: none;
+  transition: color var(--transition);
+}
+.back-link:hover { color: var(--bronze); }
+
+/* ── ADMIN SHELL ── */
+.admin-shell { display: flex; min-height: 100vh; }
+.admin-sidebar {
+  width: 250px; background: var(--ash); flex-shrink: 0;
+  display: flex; flex-direction: column; padding: 32px 0;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+}
+.admin-sidebar .brand {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 20px;
+}
+.admin-sidebar .brand .name {
+  font-family: var(--font-display); font-size: 1.4rem;
+  color: var(--white); font-weight: 700; display: block; letter-spacing: 0.02em;
+}
+.admin-sidebar .brand small {
+  font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--bronze-lt);
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 3px; padding: 0 12px; }
+.sidebar-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: var(--radius);
+  color: rgba(255,255,255,0.45); font-size: 0.85rem;
+  font-weight: 500; cursor: pointer; transition: all var(--transition);
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--font-body);
+}
+.sidebar-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+.sidebar-link.active { background: rgba(181,87,55,0.15); color: var(--bronze-lt); }
+.sidebar-link .icon { font-size: 1rem; width: 20px; text-align: center; }
+.sidebar-footer {
+  margin-top: auto; padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(255,255,255,0.3); font-size: 0.8rem;
+  background: none; border: none; cursor: pointer;
+  transition: color var(--transition); font-family: var(--font-body);
+}
+.logout-btn:hover { color: var(--red); }
+.view-site-btn {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--bronze-lt); font-size: 0.78rem;
+  background: rgba(181,87,55,0.1); border: 1px solid rgba(181,87,55,0.2);
+  border-radius: var(--radius); padding: 8px 14px; cursor: pointer;
+  transition: all var(--transition); font-family: var(--font-body);
+  margin-bottom: 12px; text-decoration: none; width: 100%; justify-content: center;
+}
+.view-site-btn:hover { background: rgba(181,87,55,0.2); color: var(--white); }
+
+/* ── ADMIN MAIN ── */
+.admin-main { flex: 1; padding: 40px; overflow-y: auto; min-height: 100vh; }
+.admin-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 36px;
+}
+.admin-page-title { font-size: 1.6rem; font-weight: 700; color: var(--ash); font-family: var(--font-display); }
+.admin-page-sub { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
+.admin-panel { display: none; }
+.admin-panel.active { display: block; }
+
+/* Stats */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 20px; margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--white); padding: 24px; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+  border-left: 3px solid var(--bronze);
+}
+.stat-card .value {
+  font-family: var(--font-display); font-size: 2.2rem; font-weight: 700;
+  color: var(--ash); line-height: 1; margin-bottom: 6px;
+}
+.stat-card .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.stat-card .trend { font-size: 0.75rem; color: var(--bronze); margin-top: 8px; font-weight: 500; }
+
+/* Admin card */
+.admin-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+  border: 1px solid var(--border);
+}
+.admin-card-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-card-header h3 { font-size: 1rem; font-weight: 600; color: var(--ash); }
+.add-btn {
+  background: var(--ash); color: var(--white);
+  padding: 9px 20px; border-radius: var(--radius);
+  font-size: 0.78rem; font-weight: 600; border: none; cursor: pointer;
+  transition: all var(--transition); letter-spacing: 0.06em;
+  font-family: var(--font-body);
+}
+.add-btn:hover { background: var(--bronze); }
+
+/* Table */
+.listings-table { width: 100%; border-collapse: collapse; }
+.listings-table th {
+  text-align: left; padding: 12px 20px;
+  font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600;
+  background: var(--off-white);
+}
+.listings-table td {
+  padding: 14px 20px; font-size: 0.875rem; color: var(--ash);
+  border-bottom: 1px solid rgba(232,232,232,0.6);
+}
+.listings-table tr:last-child td { border-bottom: none; }
+.listings-table tr:hover td { background: var(--off-white); }
+.status-badge {
+  display: inline-flex; padding: 4px 10px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.status-available { background: rgba(45,106,79,0.1); color: var(--green); }
+.status-unavailable { background: rgba(158,158,158,0.15); color: var(--muted); }
+.table-actions { display: flex; gap: 8px; }
+.action-btn {
+  padding: 6px 14px; border-radius: var(--radius);
+  font-size: 0.72rem; font-weight: 600; border: none; cursor: pointer;
+  transition: all var(--transition); font-family: var(--font-body);
+}
+.action-edit { background: rgba(46,46,46,0.08); color: var(--ash); }
+.action-edit:hover { background: var(--ash); color: var(--white); }
+.action-delete { background: rgba(192,57,43,0.08); color: var(--red); }
+.action-delete:hover { background: var(--red); color: var(--white); }
+.action-toggle { background: rgba(181,87,55,0.1); color: var(--bronze); }
+.action-toggle:hover { background: var(--bronze); color: var(--white); }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.4); align-items: center; justify-content: center;
+  padding: 24px; backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  width: 100%; max-width: 640px; max-height: 90vh;
+  overflow-y: auto; box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  padding: 24px 28px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--white);
+}
+.modal-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--ash); }
+.modal-close {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  color: var(--muted); transition: color var(--transition);
+}
+.modal-close:hover { color: var(--red); }
+.modal-body { padding: 28px; }
+.modal-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.modal-form-group label {
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ash-light); font-weight: 600;
+}
+.modal-form-group input,
+.modal-form-group textarea,
+.modal-form-group select {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 11px 14px; font-size: 0.9rem; outline: none;
+  transition: border-color var(--transition); color: var(--ash);
+  font-family: var(--font-body); background: var(--off-white);
+}
+.modal-form-group input:focus,
+.modal-form-group textarea:focus,
+.modal-form-group select:focus { border-color: var(--bronze); background: var(--white); }
+.modal-form-group textarea { resize: vertical; min-height: 90px; }
+.modal-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-footer {
+  padding: 20px 28px; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; justify-content: flex-end;
+}
+.modal-cancel {
+  background: var(--off-white); color: var(--ash); padding: 11px 24px;
+  border-radius: var(--radius); border: 1px solid var(--border); cursor: pointer;
+  font-size: 0.82rem; font-weight: 600; font-family: var(--font-body);
+  transition: all var(--transition);
+}
+.modal-cancel:hover { background: var(--border); }
+.modal-save {
+  background: var(--ash); color: var(--white); padding: 11px 28px;
+  border-radius: var(--radius); border: none; cursor: pointer;
+  font-size: 0.82rem; font-weight: 600; font-family: var(--font-body);
+  transition: all var(--transition);
+}
+.modal-save:hover { background: var(--bronze); }
+/* Amenity rows */
+.amenity-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px}
+.amenity-row-icon{width:28px;text-align:center;font-size:1rem;color:var(--bronze);flex-shrink:0}
+.amenity-row-body{flex:1;min-width:0}
+.amenity-row-label{font-size:0.85rem;font-weight:600;color:var(--ash)}
+.amenity-row-desc{font-size:0.75rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amenity-row-actions{display:flex;gap:4px;flex-shrink:0}
+.amenity-row-btn{background:none;border:none;cursor:pointer;color:var(--ash-lt);font-size:0.82rem;padding:4px 6px;border-radius:3px;transition:all 0.15s;font-family:var(--font-body)}
+.amenity-row-btn:hover{background:var(--ash-faint);color:var(--ash)}
+.amenity-row-btn.del:hover{color:var(--red)}
+.amenity-add-form{background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-top:8px;display:none}
+.amenity-add-form.open{display:block}
+
+/* Inquiries & Bookings */
+.inquiry-item, .booking-item {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.inquiry-item:last-child, .booking-item:last-child { border-bottom: none; }
+.inquiry-item:hover, .booking-item:hover { background: var(--off-white); }
+.inquiry-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--bronze); flex-shrink: 0; margin-top: 6px;
+}
+.inquiry-name, .booking-guest { font-weight: 600; font-size: 0.9rem; color: var(--ash); }
+.inquiry-meta, .booking-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; line-height: 1.6; }
+.inquiry-msg { font-size: 0.85rem; color: var(--ash); margin-top: 8px; line-height: 1.6; }
+.booking-ref { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--bronze); margin-bottom: 4px; }
+.booking-amount { font-family: var(--font-display); font-size: 1.2rem; color: var(--bronze); font-weight: 700; }
+
+/* Settings */
+.settings-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.settings-section {
+  padding: 28px; border-bottom: 1px solid var(--border);
+}
+.settings-section:last-child { border-bottom: none; }
+.settings-section h4 {
+  font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--bronze); font-weight: 600; margin-bottom: 20px;
+}
+.settings-save {
+  background: var(--ash); color: var(--white); padding: 11px 28px;
+  border-radius: var(--radius); border: none; cursor: pointer;
+  font-size: 0.82rem; font-weight: 600; font-family: var(--font-body);
+  transition: all var(--transition); margin-top: 12px;
+}
+.settings-save:hover { background: var(--bronze); }
+
+/* Maintenance toggle */
+.maint-toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.maint-toggle input{opacity:0;width:0;height:0;position:absolute}
+.maint-slider{position:absolute;inset:0;background:#ccc;border-radius:24px;cursor:pointer;transition:background 0.25s}
+.maint-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform 0.25s}
+.maint-toggle input:checked+.maint-slider{background:#B03A2E}
+.maint-toggle input:checked+.maint-slider::before{transform:translateX(20px)}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .admin-main { padding: 24px 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .modal-form-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+.id-thumb { width:60px;height:40px;object-fit:cover;border-radius:4px;border:1px solid #EBEBEB;cursor:zoom-in;transition:transform 0.2s; }
+.id-thumb:hover { transform:scale(1.08); }
+.abtn-approve { background:rgba(45,106,79,0.1);color:#2D6A4F; }
+.abtn-approve:hover { background:#2D6A4F;color:#fff; }
+.abtn-reject  { background:rgba(176,58,46,0.1);color:#B03A2E; }
+.abtn-reject:hover  { background:#B03A2E;color:#fff; }
+
+/* HOST CARD EDITOR */
+.host-editor-wrap {
+  display:grid; grid-template-columns:340px 1fr;
+  gap:28px; align-items:start;
+}
+@media(max-width:1000px){ .host-editor-wrap{grid-template-columns:1fr;} }
+
+.host-section-label {
+  font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; margin-bottom:12px;
+}
+
+/* PREVIEW CARD */
+.host-preview-card {
+  background:var(--white); border-radius:16px;
+  border:1px solid var(--border); overflow:hidden;
+  box-shadow:var(--shadow-md); margin-bottom:16px;
+}
+.host-preview-header {
+  background:linear-gradient(135deg,var(--ash) 0%,#3d2b1f 100%);
+  padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
+}
+.host-preview-eyebrow {
+  font-size:0.58rem; letter-spacing:0.25em; text-transform:uppercase;
+  color:rgba(255,255,255,0.5); font-weight:600;
+}
+.host-preview-live-dot {
+  width:6px; height:6px; border-radius:50%; background:#4ade80;
+  box-shadow:0 0 6px #4ade80; animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.host-preview-body { padding:20px; }
+.host-preview-top { display:flex; gap:14px; align-items:flex-start; margin-bottom:16px; }
+.host-preview-ava-wrap { position:relative; flex-shrink:0; }
+.host-preview-ava {
+  width:64px; height:64px; border-radius:50%;
+  background:linear-gradient(135deg,var(--ash) 0%,var(--bronze) 100%);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:1.2rem; font-weight:700; overflow:hidden;
+  border:3px solid var(--white); box-shadow:0 4px 16px rgba(0,0,0,0.12);
+}
+.host-preview-verified {
+  position:absolute; bottom:-1px; right:-1px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--bronze); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.5rem; border:2px solid #fff; font-weight:700;
+}
+.host-preview-meta { flex:1; min-width:0; }
+.host-preview-name { font-size:1.05rem; font-weight:700; color:var(--ash); margin-bottom:3px; line-height:1.2; }
+.host-preview-title { font-size:0.72rem; color:var(--muted); margin-bottom:6px; }
+.host-preview-bio-line { font-size:0.75rem; color:var(--ash-mid); line-height:1.5; }
+
+.host-preview-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:0; margin-bottom:14px;
+  background:var(--off-white); border-radius:10px;
+  overflow:hidden; border:1px solid var(--border);
+}
+.host-preview-stat {
+  display:flex; flex-direction:column; align-items:center;
+  padding:10px 6px; border-right:1px solid var(--border);
+}
+.host-preview-stat:last-child { border-right:none; }
+.host-stat-v { font-size:0.95rem; font-weight:700; color:var(--ash); line-height:1; }
+.host-stat-l { font-size:0.5rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+
+.host-preview-badges { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:12px; }
+.host-badge-chip {
+  background:rgba(181,87,55,0.08); color:var(--bronze);
+  border:1px solid rgba(181,87,55,0.2);
+  font-size:0.62rem; padding:3px 9px; border-radius:20px; font-weight:600;
+}
+.host-preview-resp {
+  background:var(--off-white); border:1px solid var(--border); border-radius:8px;
+  padding:9px 13px; font-size:0.74rem; color:var(--ash);
+  display:flex; align-items:center; gap:7px;
+}
+.host-preview-wa {
+  margin-top:10px; display:flex; align-items:center; gap:7px;
+  background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;
+  padding:9px 13px; font-size:0.74rem; color:#166534; font-weight:500;
+}
+
+.host-preview-note {
+  font-size:0.72rem; color:var(--muted); line-height:1.6;
+  padding:10px 14px; background:var(--off-white);
+  border-radius:8px; border-left:3px solid var(--bronze);
+  margin-bottom:16px;
+}
+
+/* PHOTO UPLOAD SECTION */
+.host-photo-section {
+  background:var(--white); border-radius:12px;
+  border:1px solid var(--border); padding:20px;
+  box-shadow:var(--shadow-sm);
+}
+.host-photo-row { display:flex; gap:16px; align-items:center; }
+.host-photo-avatar {
+  width:72px; height:72px; border-radius:50%;
+  background:linear-gradient(135deg,var(--ash),var(--bronze));
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem; font-weight:700; overflow:hidden; flex-shrink:0;
+  border:3px solid var(--border); box-shadow:var(--shadow-sm);
+}
+.host-photo-hint { font-size:0.75rem; color:var(--muted); margin-bottom:10px; }
+.host-upload-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--off-white); border:1.5px solid var(--border);
+  color:var(--ash); padding:8px 16px; border-radius:var(--radius);
+  font-size:0.78rem; font-weight:600; cursor:pointer;
+  font-family:var(--font-body); transition:all 0.2s;
+}
+.host-upload-btn:hover { background:var(--ash); color:#fff; border-color:var(--ash); }
+
+/* HOST FORM */
+.host-form-card {
+  background:var(--white); border-radius:14px;
+  border:1px solid var(--border); padding:28px;
+  box-shadow:var(--shadow-sm);
+}
+.host-form-section-title {
+  font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--bronze); font-weight:600; margin-bottom:16px;
+  padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.host-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:4px; }
+.host-full { grid-column:1/-1; }
+.mfg { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.mfg label {
+  font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--ash-light); font-weight:600;
+}
+.mfg input, .mfg textarea, .mfg select {
+  border:1.5px solid var(--border); border-radius:var(--radius);
+  padding:11px 14px; font-size:0.875rem; outline:none;
+  transition:border-color var(--transition); color:var(--ash);
+  font-family:var(--font-body); background:var(--off-white); width:100%;
+}
+.mfg input:focus, .mfg textarea:focus { border-color:var(--bronze); background:var(--white); }
+.mfg textarea { resize:vertical; min-height:80px; }
+
+/* BADGES EDITOR */
+.host-badges-editor {
+  background:var(--off-white); border-radius:10px;
+  border:1px solid var(--border); padding:16px; margin-bottom:20px;
+}
+.host-badges-editor-title {
+  font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; margin-bottom:12px;
+}
+.badge-toggle-list { display:flex; flex-direction:column; gap:8px; }
+.badge-toggle-item {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; background:var(--white);
+  border:1.5px solid var(--border); border-radius:8px;
+  cursor:pointer; transition:all 0.2s;
+}
+.badge-toggle-item:hover { border-color:var(--bronze); }
+.badge-toggle-item.active { border-color:var(--bronze); background:rgba(181,87,55,0.04); }
+.badge-toggle-item input[type=checkbox] { accent-color:var(--bronze); width:16px; height:16px; cursor:pointer; }
+.badge-toggle-label { font-size:0.82rem; font-weight:500; color:var(--ash); flex:1; }
+.badge-custom-input {
+  border:none; outline:none; background:transparent;
+  font-size:0.82rem; color:var(--ash); font-family:var(--font-body);
+  flex:1; padding:0; min-width:0;
+}
+
+/* SAVE ROW */
+.host-save-row { display:flex; align-items:center; gap:14px; padding-top:4px; }
+.msave {
+  flex:1; background:var(--ash); color:#fff; padding:12px 24px;
+  border-radius:var(--radius); border:none; cursor:pointer;
+  font-size:0.85rem; font-weight:600; font-family:var(--font-body);
+  transition:all var(--transition); letter-spacing:0.04em;
+}
+.msave:hover { background:var(--bronze); }
+.host-save-success {
+  display:flex; align-items:center; gap:6px;
+  font-size:0.78rem; color:var(--green); font-weight:500;
+}
+
+
+/* GENERAL CARD + TABLE */
+.acard {
+  background:var(--white); border-radius:14px;
+  border:1px solid var(--border); padding:24px;
+  box-shadow:var(--shadow-sm);
+}
+.acard-head {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; margin-bottom:20px; flex-wrap:wrap;
+}
+.acard-head h3 { font-size:1rem; font-weight:700; color:var(--ash); }
+.tbl { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.tbl th {
+  text-align:left; padding:10px 14px;
+  font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--muted); font-weight:600;
+  border-bottom:1px solid var(--border); background:var(--off-white);
+}
+.tbl td {
+  padding:12px 14px; border-bottom:1px solid var(--border);
+  color:var(--ash); vertical-align:middle;
+}
+.tbl tr:last-child td { border-bottom:none; }
+.tbl tr:hover td { background:var(--off-white); }
+.empty-state {
+  text-align:center; padding:40px; color:var(--muted);
+  font-style:italic; font-size:0.85rem;
+}
+
+/* GUESTS PANEL */
+.guests-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:12px; margin-bottom:24px;
+}
+@media(max-width:600px){ .guests-stats{grid-template-columns:1fr;} }
+.guest-stat-card {
+  background:var(--ash-faint); border-radius:10px;
+  padding:16px; text-align:center;
+  border:1px solid var(--ash-faint);
+}
+.guest-stat-val { font-size:1.8rem; font-weight:700; color:var(--charcoal); font-family:var(--font-display); line-height:1; }
+.guest-stat-lbl { font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ash-lt); margin-top:4px; }
+
+.guest-item {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 0; border-bottom:1px solid var(--ash-faint);
+}
+.guest-item:last-child { border-bottom:none; }
+.guest-ava {
+  width:44px; height:44px; border-radius:50%;
+  background:var(--charcoal); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.9rem; font-weight:600; flex-shrink:0; overflow:hidden;
+}
+.guest-info { flex:1; min-width:0; }
+.guest-name { font-size:0.9rem; font-weight:600; color:var(--charcoal); }
+.guest-email { font-size:0.75rem; color:var(--ash-lt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.guest-phone { font-size:0.72rem; color:var(--ash-lt); }
+.guest-meta { text-align:right; flex-shrink:0; }
+.guest-bookings-count {
+  font-size:0.72rem; font-weight:600; color:var(--ash);
+  background:var(--ash-faint); padding:3px 10px;
+  border-radius:20px; margin-bottom:4px; display:inline-block;
+}
+.guest-joined { font-size:0.65rem; color:var(--ash-lt); }
+.guest-empty { text-align:center; padding:40px 0; color:var(--ash-lt); font-style:italic; }
+
+/* ── TESTIMONIALS LIST ── */
+.iitem {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:16px 0; border-bottom:1px solid var(--border);
+}
+.iitem:last-child { border-bottom:none; }
+.iname  { font-size:0.9rem; font-weight:600; color:var(--ash); margin-bottom:2px; }
+.imeta  { font-size:0.75rem; color:var(--muted); margin-bottom:6px; }
+.imsg   { font-size:0.85rem; color:var(--ash-mid); line-height:1.6; font-style:italic; }
+
+/* ── TABLE ACTION BUTTONS ── */
+.tbl-actions { display:flex; gap:6px; }
+.abtn {
+  padding:5px 12px; border-radius:var(--radius);
+  font-size:0.7rem; font-weight:600; border:none; cursor:pointer;
+  transition:all var(--transition); font-family:var(--font-body);
+}
+.abtn-edit { background:rgba(46,46,46,0.08); color:var(--ash); }
+.abtn-edit:hover { background:var(--ash); color:#fff; }
+.abtn-del  { background:rgba(192,57,43,0.08); color:var(--red); }
+.abtn-del:hover  { background:var(--red); color:#fff; }
+
+/* ── ID LIGHTBOX ── */
+.id-lightbox {
+  display:none; position:fixed; inset:0; z-index:4000;
+  background:rgba(0,0,0,0.85); align-items:center; justify-content:center;
+}
+.id-lightbox.open { display:flex; }
+.id-lightbox img { max-width:90vw; max-height:88vh; border-radius:8px; }
+.id-lb-close {
+  position:absolute; top:20px; right:20px;
+  background:rgba(255,255,255,0.15); border:none; color:#fff;
+  width:40px; height:40px; border-radius:50%; font-size:1.1rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background 0.2s;
+}
+.id-lb-close:hover { background:rgba(255,255,255,0.3); }
+
+/* ── MOBILE ADMIN NAV ── */
+.mob-admin-bar {
+  display:none; position:fixed; top:0; left:0; right:0; z-index:900;
+  height:56px; background:var(--ash); padding:0 16px;
+  align-items:center; justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+}
+.mob-admin-bar .mob-brand {
+  font-family:var(--font-display); color:#fff;
+  font-size:1rem; font-weight:700; letter-spacing:0.02em;
+}
+.mob-hamburger {
+  background:none; border:none; color:#fff; font-size:1.4rem;
+  cursor:pointer; padding:4px 8px; line-height:1;
+}
+.mob-sidebar-overlay {
+  display:none; position:fixed; inset:0; z-index:940;
+  background:rgba(0,0,0,0.5);
+}
+.mob-sidebar-overlay.open { display:block; }
+@media(max-width:900px) {
+  .mob-admin-bar { display:flex; }
+  .admin-main { padding-top:72px; }
+  .admin-sidebar {
+    position:fixed; top:0; left:-270px; z-index:950;
+    transition:left 0.3s cubic-bezier(0.4,0,0.2,1); width:260px;
+  }
+  .admin-sidebar.mob-open { left:0; }
+}
+
+/* ── REVENUE CARDS ── */
+.rev-cards {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;
+}
+@media(max-width:600px){ .rev-cards{grid-template-columns:1fr;} }
+.rev-card {
+  background:var(--white); border:1px solid var(--border);
+  border-left:3px solid var(--bronze); border-radius:var(--radius-lg);
+  padding:20px 24px; box-shadow:var(--shadow-sm);
+}
+.rev-label {
+  font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; margin-bottom:8px;
+}
+.rev-value {
+  font-family:var(--font-display); font-size:1.9rem;
+  font-weight:700; color:var(--ash); line-height:1; margin-bottom:6px;
+}
+.rev-sub { font-size:0.75rem; color:var(--bronze); font-weight:500; }
+
+/* ── BOOKING FILTER TABS ── */
+.booking-filter-bar {
+  display:flex; gap:4px; padding:12px 20px;
+  border-bottom:1px solid var(--border); flex-wrap:wrap;
+}
+.bfilter {
+  padding:6px 16px; border-radius:20px; font-size:0.75rem;
+  font-weight:600; border:1.5px solid var(--border);
+  background:transparent; color:var(--muted); cursor:pointer;
+  transition:all var(--transition); font-family:var(--font-body);
+  letter-spacing:0.04em;
+}
+.bfilter:hover { border-color:var(--ash); color:var(--ash); }
+.bfilter.active { background:var(--ash); color:var(--white); border-color:var(--ash); }
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="adminLogin" class="admin-login">
+  <div class="admin-login-card">
+    <span class="logo-mark">Accent Homes</span>
+    <span class="logo-sub">Admin Dashboard</span>
+    <div class="admin-form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="admin@accenthomes.com">
+    </div>
+    <div class="admin-form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••"
+             onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="admin-login-btn" onclick="doLogin()">Sign In →</button>
+    <p class="login-error" id="loginError">Invalid credentials. Please try again.</p>
+    <a href="accent-homes.html" class="back-link">← Back to Website</a>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="admin-shell" id="adminShell" style="display:none">
+  <!-- Mobile top bar -->
+  <div class="mob-admin-bar" id="mobAdminBar">
+    <span class="mob-brand">Accent Homes</span>
+    <button class="mob-hamburger" onclick="toggleMobSidebar()" aria-label="Open menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+  <div class="mob-sidebar-overlay" id="mobSidebarOverlay" onclick="toggleMobSidebar()"></div>
+
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="brand">
+      <span class="name">Accent Homes</span>
+      <small>Admin Panel</small>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" onclick="switchPanel('dashboard', this)">
+        <span class="icon"><i class="fa-solid fa-chart-pie"></i></span> Dashboard
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('listings', this)">
+        <span class="icon"><i class="fa-solid fa-building"></i></span> Listings
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('bookings', this)">
+        <span class="icon"><i class="fa-solid fa-credit-card"></i></span> Bookings
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('inquiries', this)">
+        <span class="icon"><i class="fa-solid fa-envelope"></i></span> Inquiries
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('guests', this)">
+        <span class="icon"><i class="fa-solid fa-users"></i></span> Guests
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('neighbourhood', this)">
+        <span class="icon"><i class="fa-solid fa-map-pin"></i></span> Neighbourhood
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('testimonials', this)">
+        <span class="icon"><i class="fa-solid fa-star"></i></span> Testimonials
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('gallery', this)">
+        <span class="icon"><i class="fa-solid fa-images"></i></span> Gallery
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('host', this)">
+        <span class="icon"><i class="fa-solid fa-user-tie"></i></span> Host Card
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('iplogs', this)">
+        <span class="icon"><i class="fa-solid fa-globe"></i></span> Visitor Logs
+      </button>
+      <button class="sidebar-link" onclick="switchPanel('settings', this)">
+        <span class="icon"><i class="fa-solid fa-gear"></i></span> Settings
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="toggleAdminTheme()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:0.78rem;cursor:pointer;color:var(--ash-light);font-family:var(--font-body);width:100%;text-align:left;margin-bottom:8px;transition:all 0.2s;" id="adminThemeBtn">☀ Light mode</button>
+      <a href="accent-homes.html" class="view-site-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Website</a>
+      <button class="logout-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <div class="admin-page-title" id="adminPageTitle">Dashboard</div>
+        <div class="admin-page-sub" id="adminPageSub">Overview of your properties</div>
+      </div>
+      <button class="add-btn" id="adminActionBtn" onclick="openAddModal()" style="display:none">
+        + Add Listing
+      </button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="admin-panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="value" id="statTotal">0</div>
+          <div class="label">Total Listings</div>
+          <div class="trend">All Properties</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="statAvail">0</div>
+          <div class="label">Available Now</div>
+          <div class="trend">Ready to Book</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="statBooked">0</div>
+          <div class="label">Currently Booked</div>
+          <div class="trend">Paid Guests</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="statInquiries">0</div>
+          <div class="label">Inquiries</div>
+          <div class="trend">Total Received</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="statViews">—</div>
+          <div class="label">Site Views</div>
+          <div class="trend">All-time Visits</div>
+        </div>
+        <div class="stat-card">
+          <div class="value" id="statGuests">—</div>
+          <div class="label">Registered Guests</div>
+          <div class="trend">Total Accounts</div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><h3>Recent Inquiries</h3></div>
+        <div id="recentInquiries">
+          <div style="padding:32px;text-align:center;color:var(--muted)">No inquiries yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTINGS -->
+    <div class="admin-panel" id="panel-listings">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3>All Apartments</h3>
+          <button class="add-btn" onclick="openAddModal()">+ Add Listing</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="listings-table">
+            <thead>
+              <tr>
+                <th>Apartment</th><th>Location</th><th>Price/Night</th>
+                <th>Bedrooms</th><th>Caution</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminListingsTable">
+              <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">No listings yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="admin-panel" id="panel-bookings">
+      <!-- Revenue summary -->
+      <div class="rev-cards" style="grid-template-columns:repeat(3,1fr)">
+        <div class="rev-card">
+          <div class="rev-label">This Week</div>
+          <div class="rev-value" id="revWeek">₦0</div>
+          <div class="rev-sub" id="revWeekSub">0 bookings</div>
+        </div>
+        <div class="rev-card">
+          <div class="rev-label">This Month</div>
+          <div class="rev-value" id="revMonth">₦0</div>
+          <div class="rev-sub" id="revMonthSub">0 bookings</div>
+        </div>
+        <div class="rev-card">
+          <div class="rev-label">Year to Date</div>
+          <div class="rev-value" id="revYTD">₦0</div>
+          <div class="rev-sub" id="revYTDSub">0 bookings</div>
+        </div>
+      </div>
+      <!-- Filter + list -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3>Bookings</h3>
+          <div style="display:flex;gap:8px">
+            <button class="add-btn" onclick="openManualBooking()">
+              <i class="fa-solid fa-plus"></i> Manual Booking
+            </button>
+            <button class="add-btn" style="background:var(--off-white);color:var(--ash);border:1px solid var(--border);" onclick="exportBookingsCSV()">
+              <i class="fa-solid fa-download"></i> Export CSV
+            </button>
+          </div>
+        </div>
+        <div class="booking-filter-bar">
+          <button class="bfilter active" onclick="setBookingFilter('all',this)">All</button>
+          <button class="bfilter" onclick="setBookingFilter('upcoming',this)">Upcoming</button>
+          <button class="bfilter" onclick="setBookingFilter('current',this)">Current</button>
+          <button class="bfilter" onclick="setBookingFilter('past',this)">Past</button>
+          <button class="bfilter" onclick="setBookingFilter('cancelled',this)">Cancelled</button>
+        </div>
+        <div id="allBookings">
+          <div style="padding:32px;text-align:center;color:var(--muted)">No bookings yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INQUIRIES -->
+    <div class="admin-panel" id="panel-inquiries">
+      <div class="admin-card">
+        <div class="admin-card-header"><h3>All Booking Inquiries</h3></div>
+        <div id="allInquiries">
+          <div style="padding:32px;text-align:center;color:var(--muted)">No inquiries yet.</div>
+        </div>
+      </div>
+    </div>
+
+
+
+      <!-- GUESTS PANEL -->
+      <div class="admin-panel" id="panel-guests">
+        <div class="acard">
+          <div class="acard-head">
+            <div>
+              <h3>Registered Guests</h3>
+              <p style="font-size:0.75rem;color:var(--ash-lt);margin-top:2px;">All guests who have created an account on the public site.</p>
+            </div>
+            <button class="add-btn" onclick="loadGuests()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+          </div>
+
+          <!-- Stats row -->
+          <div class="guests-stats" id="guestsStats">
+            <div class="guest-stat-card">
+              <div class="guest-stat-val" id="gTotalAccounts">—</div>
+              <div class="guest-stat-lbl">Total Accounts</div>
+            </div>
+            <div class="guest-stat-card">
+              <div class="guest-stat-val" id="gTotalBookings">—</div>
+              <div class="guest-stat-lbl">Total Bookings</div>
+            </div>
+            <div class="guest-stat-card">
+              <div class="guest-stat-val" id="gThisMonth">—</div>
+              <div class="guest-stat-lbl">New This Month</div>
+            </div>
+          </div>
+
+          <!-- Guest list -->
+          <div id="guestsList">
+            <div class="empty-state">Click Refresh to load guests.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEIGHBOURHOOD PANEL -->
+      <div class="admin-panel" id="panel-neighbourhood">
+        <div class="acard">
+          <div class="acard-head">
+            <h3>Neighbourhood Places</h3>
+            <button class="add-btn" onclick="openPlaceModal()">+ Add Place</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="tbl">
+              <thead>
+                <tr><th>Name</th><th>Category</th><th>Distance</th><th>Hours</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="placesTableBody">
+                <tr><td colspan="5" class="empty-state">No places yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS PANEL -->
+      <div class="admin-panel" id="panel-testimonials">
+        <div class="acard">
+          <div class="acard-head">
+            <h3>Guest Testimonials</h3>
+            <button class="add-btn" onclick="openTestimonialModal()">+ Add Review</button>
+          </div>
+          <div id="testimonialsList"><div class="empty-state">No testimonials yet.</div></div>
+        </div>
+      </div>
+
+      <!-- GALLERY PANEL -->
+      <div class="admin-panel" id="panel-gallery">
+        <div class="acard">
+          <div class="acard-head">
+            <h3>Gallery Photos</h3>
+            <button class="add-btn" onclick="document.getElementById('galleryFileInput').click()">+ Upload Photos</button>
+          </div>
+          <div style="padding:24px;">
+            <input type="file" id="galleryFileInput" accept="image/*" multiple style="display:none" onchange="uploadGalleryPhotos(this.files)">
+            <div id="galleryUploadProgress" style="display:none;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:0.75rem;color:var(--ash);" id="galleryUploadName">Uploading…</span>
+                <span style="font-size:0.75rem;color:var(--ash-lt);" id="galleryUploadPct">0%</span>
+              </div>
+              <div style="background:var(--ash-faint);border-radius:20px;height:5px;">
+                <div id="galleryUploadBar" style="background:var(--ash);height:5px;width:0%;transition:width 0.3s;border-radius:20px;"></div>
+              </div>
+            </div>
+            <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
+              <div class="empty-state" style="grid-column:1/-1">No gallery photos yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOST CARD PANEL -->
+      <div class="admin-panel" id="panel-host">
+        <div class="host-editor-wrap">
+
+          <!-- LEFT — Live Preview + Photo -->
+          <div class="host-preview-col">
+            <div class="host-section-label">Live Preview</div>
+            <div class="host-preview-card">
+              <div class="host-preview-header">
+                <div class="host-preview-live-dot"></div>
+                <span class="host-preview-eyebrow">Your Host</span>
+              </div>
+              <div class="host-preview-body">
+                <div class="host-preview-top">
+                  <div class="host-preview-ava-wrap">
+                    <div id="previewAvatar" class="host-preview-ava">AH</div>
+                    <div class="host-preview-verified">✓</div>
+                  </div>
+                  <div class="host-preview-meta">
+                    <div class="host-preview-name" id="previewName">Accent Homes</div>
+                    <div class="host-preview-title" id="previewTitle">Property Manager · Asaba</div>
+                  </div>
+                </div>
+                <div class="host-preview-stats">
+                  <div class="host-preview-stat">
+                    <span class="host-stat-v" id="previewRating">4.9★</span>
+                    <span class="host-stat-l">Rating</span>
+                  </div>
+                  <div class="host-preview-stat">
+                    <span class="host-stat-v" id="previewResponse">100%</span>
+                    <span class="host-stat-l">Response</span>
+                  </div>
+                  <div class="host-preview-stat">
+                    <span class="host-stat-v" id="previewSince">2025</span>
+                    <span class="host-stat-l">Member Since</span>
+                  </div>
+                </div>
+                <div id="previewBadges" class="host-preview-badges">
+                  <span class="host-badge-chip"><i class="fa-solid fa-circle-check"></i> Identity Verified</span>
+                  <span class="host-badge-chip"><i class="fa-solid fa-trophy"></i> Superhost</span>
+                  <span class="host-badge-chip"><i class="fa-solid fa-bolt"></i> Fast Responder</span>
+                </div>
+                <div id="previewBioWrap" class="host-preview-bio-line" style="display:none;margin-bottom:12px;"></div>
+                <div class="host-preview-resp">
+                  ⏱ <span id="previewResponseTime">Usually responds within 1 hour</span>
+                </div>
+                <div id="previewWaWrap" class="host-preview-wa" style="display:none">
+                  💬 <span id="previewWaLink">+2348000000000</span>
+                </div>
+              </div>
+            </div>
+            <p class="host-preview-note">This card appears in every apartment detail modal when guests view a listing.</p>
+
+            <!-- Upload photo section -->
+            <div class="host-photo-section">
+              <div class="host-section-label" style="margin-bottom:14px;">Host Photo</div>
+              <div class="host-photo-row">
+                <div id="hostAvatarPreview" class="host-photo-avatar">AH</div>
+                <div>
+                  <div class="host-photo-hint">Upload a clear headshot or logo. Square images work best.</div>
+                  <button class="host-upload-btn" onclick="document.getElementById('hostPhotoInput').click()"><i class="fa-solid fa-camera"></i> Upload Photo</button>
+                  <input type="file" id="hostPhotoInput" accept="image/*" style="display:none" onchange="uploadHostPhoto(this.files[0])">
+                </div>
+              </div>
+              <input type="hidden" id="hostPhotoUrl">
+            </div>
+          </div>
+
+          <!-- RIGHT — Edit Form -->
+          <div class="host-form-col">
+            <div class="host-section-label">Edit Details</div>
+            <div class="host-form-card">
+
+              <div class="host-form-section-title">Basic Info</div>
+              <div class="host-form-grid">
+                <div class="mfg host-full">
+                  <label>Host / Manager Name</label>
+                  <input type="text" id="hostName" placeholder="e.g. Accent Homes" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg host-full">
+                  <label>Title / Role</label>
+                  <input type="text" id="hostTitle" placeholder="e.g. Property Manager · Asaba, Delta State" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg host-full">
+                  <label>Bio / Short Description</label>
+                  <textarea id="hostBio" placeholder="A short intro about the host or company…" oninput="updateHostPreview()"></textarea>
+                </div>
+                <div class="mfg">
+                  <label>WhatsApp Number</label>
+                  <input type="text" id="hostWhatsApp" placeholder="+2348000000000" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg">
+                  <label>Star Rating</label>
+                  <input type="text" id="hostRating" placeholder="4.9" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg">
+                  <label>Response Rate</label>
+                  <input type="text" id="hostResponse" placeholder="100%" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg">
+                  <label>Member Since</label>
+                  <input type="text" id="hostSince" placeholder="2025" oninput="updateHostPreview()">
+                </div>
+                <div class="mfg">
+                  <label>Response Time</label>
+                  <input type="text" id="hostResponseTime" placeholder="Usually responds within 1 hour" oninput="updateHostPreview()">
+                </div>
+              </div>
+
+              <div class="host-form-section-title">Badges</div>
+              <div class="host-badges-editor">
+                <div class="badge-toggle-item">
+                  <input type="checkbox" id="badge0" checked onchange="updateHostPreview()">
+                  <input type="text" class="badge-custom-input" id="badgeText0" value="✓ Identity Verified" oninput="updateHostPreview()">
+                </div>
+                <div class="badge-toggle-item" style="margin-top:8px;">
+                  <input type="checkbox" id="badge1" checked onchange="updateHostPreview()">
+                  <input type="text" class="badge-custom-input" id="badgeText1" value="Superhost" oninput="updateHostPreview()">
+                </div>
+                <div class="badge-toggle-item" style="margin-top:8px;">
+                  <input type="checkbox" id="badge2" checked onchange="updateHostPreview()">
+                  <input type="text" class="badge-custom-input" id="badgeText2" value="Fast Responder" oninput="updateHostPreview()">
+                </div>
+                <p style="font-size:0.7rem;color:var(--muted);margin-top:10px;margin-bottom:0;">Tick/untick to show or hide. Edit the text to customise each badge.</p>
+              </div>
+
+              <div class="host-save-row">
+                <button class="msave" onclick="saveHostCard()">Save Host Card</button>
+                <div id="hostSaveMsg" style="display:none;font-size:0.78rem;color:var(--green);font-weight:500;">✅ Saved successfully</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    <!-- VISITOR LOGS -->
+    <div class="admin-panel" id="panel-iplogs">
+      <div class="acard">
+        <div class="acard-head">
+          <div>
+            <h3>Visitor Logs</h3>
+            <p style="font-size:0.75rem;color:var(--ash-lt);margin-top:2px;">IP addresses and session info for everyone who visited the public site.</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="add-btn" onclick="loadIpLogs()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+            <button class="add-btn" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;" onclick="clearIpLogs()"><i class="fa-solid fa-trash"></i> Clear All</button>
+          </div>
+        </div>
+
+        <div class="guests-stats" id="ipStats">
+          <div class="guest-stat-card">
+            <div class="guest-stat-val" id="ipTotalVisits">—</div>
+            <div class="guest-stat-lbl">Total Visits</div>
+          </div>
+          <div class="guest-stat-card">
+            <div class="guest-stat-val" id="ipUniqueIps">—</div>
+            <div class="guest-stat-lbl">Unique IPs</div>
+          </div>
+          <div class="guest-stat-card">
+            <div class="guest-stat-val" id="ipToday">—</div>
+            <div class="guest-stat-lbl">Today</div>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;margin-top:16px;">
+          <table class="tbl" id="ipLogsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>IP Address</th>
+                <th>Date &amp; Time</th>
+                <th>Browser / Device</th>
+                <th>Referrer</th>
+              </tr>
+            </thead>
+            <tbody id="ipLogsBody">
+              <tr><td colspan="5" class="empty-state">Click Refresh to load visitor logs.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="admin-panel" id="panel-settings">
+      <div class="settings-card">
+        <div class="settings-section">
+          <h4>Contact Information</h4>
+          <div class="modal-form-group">
+            <label>WhatsApp Number</label>
+            <input type="text" id="settingWA" placeholder="+2348000000000">
+          </div>
+          <div class="modal-form-group">
+            <label>Contact Email</label>
+            <input type="email" id="settingEmail" placeholder="hello@accenthomes.com">
+          </div>
+          <div class="modal-form-group">
+            <label>Address</label>
+            <input type="text" id="settingAddr" placeholder="Asaba, Delta State">
+          </div>
+          <button class="settings-save" onclick="saveSettings()">Save Changes</button>
+        </div>
+        <div class="settings-section">
+          <h4>Maintenance Mode</h4>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;line-height:1.5">When enabled, the public site shows a maintenance message to all visitors. Admins can still access the site after signing in.</p>
+          <div class="modal-form-group" style="margin-bottom:14px">
+            <label>Status</label>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+              <label class="maint-toggle">
+                <input type="checkbox" id="maintToggle" onchange="toggleMaintenance(this)">
+                <span class="maint-slider"></span>
+              </label>
+              <span id="maintStatusLabel" style="font-size:0.85rem;color:var(--ash)">Off</span>
+            </div>
+          </div>
+          <div class="modal-form-group">
+            <label>Message shown to visitors</label>
+            <input type="text" id="maintMessage" placeholder="We'll be back shortly. Thank you for your patience." style="margin-top:6px">
+          </div>
+          <button id="maintSaveBtn" class="settings-save" onclick="saveMaintMessage()">Save Message</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MANUAL BOOKING MODAL -->
+<div class="modal-overlay" id="manualBookingModal" style="display:none">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h3>Create Manual Booking</h3>
+      <button class="modal-close" onclick="closeManualBooking()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;background:#FFF8F0;border:1px solid #F2D9B8;border-radius:4px;padding:10px 14px">Use this for bookings where payment was confirmed outside the normal flow (e.g. Paystack reference exists but booking wasn't saved).</p>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Guest Name *</label>
+          <input type="text" id="mb_name" placeholder="Full name">
+        </div>
+        <div class="modal-form-group">
+          <label>Guest Email *</label>
+          <input type="email" id="mb_email" placeholder="guest@email.com">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Phone / WhatsApp</label>
+          <input type="text" id="mb_phone" placeholder="+234...">
+        </div>
+        <div class="modal-form-group">
+          <label>Apartment *</label>
+          <select id="mb_apt"></select>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Check-In Date *</label>
+          <input type="date" id="mb_checkin">
+        </div>
+        <div class="modal-form-group">
+          <label>Check-Out Date *</label>
+          <input type="date" id="mb_checkout">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Guests</label>
+          <input type="number" id="mb_guests" value="1" min="1" max="10">
+        </div>
+        <div class="modal-form-group">
+          <label>Total Paid (₦) *</label>
+          <input type="number" id="mb_total" placeholder="e.g. 350000">
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label>Paystack Reference *</label>
+        <input type="text" id="mb_ref" placeholder="e.g. AH-1780246465533">
+      </div>
+      <div class="modal-form-group">
+        <label>Notes (optional)</label>
+        <input type="text" id="mb_notes" placeholder="e.g. Manually created — payment verified on Paystack dashboard">
+      </div>
+      <p id="mb_err" style="color:var(--red);font-size:0.82rem;display:none;margin-top:8px"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeManualBooking()">Cancel</button>
+      <button class="modal-save" id="mb_saveBtn" onclick="saveManualBooking()">Create Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT LISTING MODAL -->
+<div class="modal-overlay" id="listingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add New Apartment</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editingId">
+      <div class="modal-form-group">
+        <label>Apartment Name</label>
+        <input type="text" id="fieldName" placeholder="e.g. The Asaba Residence">
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Location</label>
+          <input type="text" id="fieldLocation" placeholder="e.g. Asaba GRA">
+        </div>
+        <div class="modal-form-group">
+          <label>Bedrooms</label>
+          <select id="fieldBedrooms">
+            <option value="1">1 Bedroom</option>
+            <option value="2">2 Bedrooms</option>
+            <option value="3">3 Bedrooms</option>
+            <option value="4">4 Bedrooms</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Price Per Night (₦)</label>
+          <input type="number" id="fieldPriceNight" placeholder="e.g. 45000">
+        </div>
+        <div class="modal-form-group">
+          <label>Price Per Month (₦)</label>
+          <input type="number" id="fieldPriceMonth" placeholder="e.g. 900000">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Caution ≤5 Guests (₦)</label>
+          <input type="number" id="fieldCaution" placeholder="e.g. 50000">
+        </div>
+        <div class="modal-form-group">
+          <label>Caution &gt;5 Guests (₦)</label>
+          <input type="number" id="fieldCautionLarge" placeholder="e.g. 100000">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Max Guests</label>
+          <input type="number" id="fieldMaxGuests" placeholder="e.g. 10" min="1" max="20">
+        </div>
+        <div class="modal-form-group">
+          <label>Availability</label>
+          <select id="fieldAvailable">
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label>Description</label>
+        <textarea id="fieldDesc" placeholder="Brief description of the apartment…"></textarea>
+      </div>
+      <div class="modal-form-group">
+        <label>Amenities — What this place offers</label>
+        <div id="amenitiesList" style="margin-top:8px"></div>
+        <button type="button" id="amenityAddBtn" onclick="toggleAddAmenityForm()"
+                style="margin-top:8px;background:none;border:1.5px dashed var(--border);border-radius:var(--radius);width:100%;padding:9px;font-size:0.82rem;color:var(--ash-lt);cursor:pointer;font-family:var(--font-body);transition:all 0.2s"
+                onmouseover="this.style.borderColor='var(--bronze)';this.style.color='var(--bronze)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ash-lt)'">
+          + Add amenity
+        </button>
+        <div class="amenity-add-form" id="amenityAddForm">
+          <div class="modal-form-row" style="gap:8px;margin-bottom:8px">
+            <div class="modal-form-group" style="margin-bottom:0">
+              <label style="font-size:0.75rem">Icon</label>
+              <select id="amenityIcon" style="margin-top:4px"></select>
+            </div>
+            <div class="modal-form-group" style="margin-bottom:0;flex:2">
+              <label style="font-size:0.75rem">Label *</label>
+              <input type="text" id="amenityLabel" placeholder="e.g. High-Speed WiFi" style="margin-top:4px">
+            </div>
+          </div>
+          <div class="modal-form-group" style="margin-bottom:10px">
+            <label style="font-size:0.75rem">Description (optional)</label>
+            <input type="text" id="amenityDesc" placeholder="e.g. Dedicated fibre connection" style="margin-top:4px">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button type="button" onclick="addAmenity()" class="modal-save" style="flex:1;padding:9px">Add</button>
+            <button type="button" onclick="toggleAddAmenityForm()" class="modal-cancel" style="padding:9px 16px">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label>Apartment Photos</label>
+        <div id="uploadZone"
+          style="border:2px dashed var(--ash-faint);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all 0.25s;background:#fafafa;"
+          onclick="document.getElementById('imgFileInput').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--ash)';this.style.background='var(--ash-faint)'"
+          ondragleave="this.style.borderColor='var(--ash-faint)';this.style.background='#fafafa'"
+          ondrop="handleDrop(event)">
+          <div style="font-size:2rem;margin-bottom:8px;">📁</div>
+          <div style="font-size:0.85rem;color:var(--ash);font-weight:500;">Click or drag photos here</div>
+          <div style="font-size:0.72rem;color:var(--ash-lt);margin-top:4px;">JPG, PNG, WEBP · max 5MB each · Multiple allowed</div>
+          <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none" onchange="handleFileSelect(this.files)">
+        </div>
+        <div id="uploadProgress" style="display:none;margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:0.75rem;color:var(--ash);" id="uploadFileName">Uploading…</span>
+            <span style="font-size:0.75rem;color:var(--ash-lt);" id="uploadPct">0%</span>
+          </div>
+          <div style="background:var(--ash-faint);border-radius:20px;height:5px;overflow:hidden;">
+            <div id="uploadBar" style="background:var(--ash);height:5px;width:0%;transition:width 0.3s;border-radius:20px;"></div>
+          </div>
+        </div>
+        <div id="photoGrid" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;align-items:flex-start;"></div>
+        <details style="margin-top:10px;">
+          <summary style="font-size:0.72rem;color:var(--ash-lt);cursor:pointer;">Or paste an image URL instead</summary>
+          <input type="text" id="fieldImage" placeholder="https://..."
+            style="border:1.5px solid var(--ash-faint);border-radius:4px;padding:10px 12px;font-size:0.85rem;outline:none;width:100%;margin-top:8px;color:#1E1E1E;"
+            onchange="if(this.value){addPhoto(this.value,'url');this.value='';}">
+        </details>
+      </div>
+
+      <!-- Blocked Dates (only shown when editing an existing listing) -->
+      <div class="modal-form-group" id="blocksSection" style="display:none">
+        <label>Blocked Dates</label>
+        <p style="font-size:0.75rem;color:var(--muted);margin-bottom:10px;line-height:1.6;">
+          Block dates for owner stays, maintenance, or other reasons. Blocked dates appear on the public availability calendar and cannot be booked.
+        </p>
+        <div id="blocksList"></div>
+        <div style="margin-top:14px;padding:14px;background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius)">
+          <div class="modal-form-row" style="gap:8px;margin-bottom:10px">
+            <div class="modal-form-group" style="margin-bottom:0">
+              <label style="font-size:0.75rem">Start Date</label>
+              <input type="date" id="blockStart" style="margin-top:4px">
+            </div>
+            <div class="modal-form-group" style="margin-bottom:0">
+              <label style="font-size:0.75rem">End Date (inclusive)</label>
+              <input type="date" id="blockEnd" style="margin-top:4px">
+            </div>
+          </div>
+          <div class="modal-form-group" style="margin-bottom:10px">
+            <label style="font-size:0.75rem">Reason</label>
+            <input type="text" id="blockReason" placeholder="e.g. Owner stay, Maintenance" style="margin-top:4px">
+          </div>
+          <button type="button" onclick="saveBlock()" class="modal-save" style="padding:8px 18px;font-size:0.8rem">+ Block these dates</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveListing()">Save Apartment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── FIREBASE CONFIG (same as main site) ──
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBFNCB_WplluodGXPtqDmVHbZCx4QahpFg",
+  authDomain:        "lekki-haven-b573c.firebaseapp.com",
+  projectId:         "lekki-haven-b573c",
+  storageBucket:     "lekki-haven-b573c.firebasestorage.app",
+  messagingSenderId: "681909366596",
+  appId:             "1:681909366596:web:e995fd9b7eaa1e3e7ab111"
+};
+
+// CLOUDINARY — Free image hosting (cloudinary.com)
+const CLOUDINARY_CLOUD = "df5uashml";
+const CLOUDINARY_PRESET = "accent-homes";
+
+let db = null, auth = null, firebaseReady = false;
+
+async function checkIsAdmin(user) {
+  try {
+    const token = await user.getIdTokenResult();
+    return token.claims.admin === true;
+  } catch(e) { return false; }
+}
+
+function initFirebase() {
+  try {
+    // Use a named app instance so admin auth state is completely isolated
+    // from the main site — sign-in/out on one never affects the other.
+    const adminApp = firebase.apps.find(a => a.name === 'admin-panel')
+      || firebase.initializeApp(FIREBASE_CONFIG, 'admin-panel');
+    db   = adminApp.firestore();
+    auth = adminApp.auth();
+    firebaseReady = true;
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        const ok = await checkIsAdmin(user);
+        if (ok) {
+          showAdminShell();
+        } else {
+          await auth.signOut();
+          showLogin();
+          const errEl = document.getElementById('loginError');
+          errEl.textContent = 'Access denied. This account is not an admin.';
+          errEl.style.display = 'block';
+        }
+      } else {
+        showLogin();
+      }
+    });
+  } catch(e) {
+    console.warn("Firebase init failed:", e);
+    showLogin();
+  }
+}
+
+// ── XSS HELPER ──
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── STORAGE ──
+async function getListings() {
+  if (firebaseReady) {
+    const snap = await db.collection("listings").orderBy("createdAt","desc").get();
+    return snap.docs.map(d => ({id:d.id,...d.data()}));
+  }
+  return JSON.parse(localStorage.getItem("lh_listings")||"[]");
+}
+async function saveListing_db(data, id=null) {
+  if (firebaseReady) {
+    if (id) { await db.collection("listings").doc(id).update(data); return id; }
+    const ref = await db.collection("listings").add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    return ref.id;
+  }
+  const list = JSON.parse(localStorage.getItem("lh_listings")||"[]");
+  if (id) { const i=list.findIndex(x=>x.id===id); if(i>-1) list[i]={...list[i],...data}; }
+  else list.unshift({...data, id:"ls_"+Date.now(), createdAt:new Date().toISOString()});
+  localStorage.setItem("lh_listings",JSON.stringify(list));
+}
+async function deleteListing_db(id) {
+  if (firebaseReady) { await db.collection("listings").doc(id).delete(); return; }
+  let list = JSON.parse(localStorage.getItem("lh_listings")||"[]");
+  localStorage.setItem("lh_listings",JSON.stringify(list.filter(x=>x.id!==id)));
+}
+async function getInquiries() {
+  if (firebaseReady) {
+    const snap = await db.collection("inquiries").orderBy("createdAt","desc").get();
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  return JSON.parse(localStorage.getItem("lh_inquiries")||"[]");
+}
+async function getBookings() {
+  if (firebaseReady) {
+    const snap = await db.collection("bookings").orderBy("createdAt","desc").get();
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  return JSON.parse(localStorage.getItem("lh_bookings")||"[]");
+}
+
+// ── AUTH ──
+function showLogin() {
+  document.getElementById("adminLogin").style.display = "flex";
+  document.getElementById("adminShell").style.display = "none";
+}
+function showAdminShell() {
+  document.getElementById("adminLogin").style.display = "none";
+  document.getElementById("adminShell").style.display = "flex";
+  loadAdminData();
+  loadHostCard();
+  loadSettings();
+}
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value;
+  const pass  = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginError");
+  errEl.style.display = "none";
+  if (!firebaseReady) {
+    errEl.textContent = 'Service unavailable. Please try again later.';
+    errEl.style.display = "block";
+    return;
+  }
+  try { await auth.signInWithEmailAndPassword(email, pass); }
+  catch(e) { errEl.textContent = 'Invalid credentials. Please try again.'; errEl.style.display = "block"; }
+}
+function doLogout() {
+  if (firebaseReady && auth) auth.signOut();
+  showLogin();
+}
+
+// ── MOBILE NAV ──
+function toggleMobSidebar() {
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('mobSidebarOverlay');
+  const open    = sidebar.classList.contains('mob-open');
+  sidebar.classList.toggle('mob-open', !open);
+  overlay.classList.toggle('open', !open);
+}
+
+// ── PANELS ──
+function switchPanel(name, btn) {
+  document.querySelectorAll(".admin-panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".sidebar-link").forEach(l=>l.classList.remove("active"));
+  const panelEl = document.getElementById("panel-"+name); if(panelEl) panelEl.classList.add("active");
+  btn.classList.add("active");
+  // Close mobile sidebar when a panel is selected
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('mobSidebarOverlay');
+  if (sidebar) sidebar.classList.remove('mob-open');
+  if (overlay) overlay.classList.remove('open');
+  if (name === "guests")        loadGuests();
+  if (name === "neighbourhood") renderPlacesTable();
+  if (name === "testimonials")  renderTestimonialsList();
+  if (name === "gallery")       renderGalleryGrid();
+  if (name === "host")          loadHostCard();
+  if (name === "iplogs")        loadIpLogs();
+  if (name === "settings")      { loadSettings(); loadMaintenanceState(); }
+  const titles = {
+    dashboard:     ["Dashboard",     "Overview of your properties"],
+    listings:      ["Listings",      "Manage your apartments"],
+    guests:        ["Guests",        "Registered guest accounts"],
+    neighbourhood: ["Neighbourhood", "Manage nearby places"],
+    testimonials:  ["Testimonials",  "Manage guest reviews"],
+    gallery:       ["Gallery",       "Manage public site gallery photos"],
+    host:          ["Host Card",     "Edit host details shown on listings"],
+    bookings:      ["Bookings","All confirmed paid bookings"],
+    inquiries: ["Inquiries","Booking requests from guests"],
+    iplogs:    ["Visitor Logs","IP addresses and session info for site visitors"],
+    settings:  ["Settings","Property configuration"]
+  };
+  document.getElementById("adminPageTitle").textContent = (titles[name]||[name,''])[0];
+  document.getElementById("adminPageSub").textContent   = (titles[name]||['',''])[1];
+  document.getElementById("adminActionBtn").style.display = name==="listings" ? "flex" : "none";
+}
+
+// ── BOOKING FILTER + REVENUE ──
+let _allBookings    = [];
+let _bookingFilter  = 'all';
+
+// Parse a "YYYY-MM-DD" date string as local midnight, not UTC midnight.
+// new Date("2026-05-20") parses as 00:00 UTC = 01:00 Nigeria, which
+// makes check-in day show as "upcoming" instead of "current".
+function _parseLocalDate(s) {
+  if (!s) return new Date(0);
+  const [y, m, d] = String(s).split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function _bookingMatchesFilter(b, filter) {
+  if (filter === 'all')       return true;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const ci = _parseLocalDate(b.checkIn);
+  const co = _parseLocalDate(b.checkOut);
+  const cancelled = b.status === 'cancelled';
+  if (filter === 'cancelled') return cancelled;
+  if (cancelled)              return false;
+  if (filter === 'upcoming')  return ci > today;
+  if (filter === 'current')   return ci <= today && co >= today;
+  if (filter === 'past')      return co < today;
+  return true;
+}
+
+function setBookingFilter(filter, btn) {
+  _bookingFilter = filter;
+  document.querySelectorAll('.bfilter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const filtered = _allBookings.filter(b => _bookingMatchesFilter(b, filter));
+  renderBookings(filtered, 'allBookings');
+}
+
+function _updateRevenue(bookings) {
+  const now    = new Date();
+  // Monday of this week
+  const weekStart = new Date(now);
+  weekStart.setHours(0, 0, 0, 0);
+  const day = weekStart.getDay();
+  weekStart.setDate(weekStart.getDate() - (day === 0 ? 6 : day - 1));
+  // 1st of this month
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const paid = bookings.filter(b => b.status !== 'cancelled');
+
+  function sumRevenue(subset) {
+    return subset.reduce((s, b) => s + Number(b.total || 0), 0);
+  }
+  function bookingDate(b) {
+    if (!b.createdAt) return new Date(0);
+    return b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+  }
+
+  const yearStart  = new Date(now.getFullYear(), 0, 1);
+
+  const weekBkgs  = paid.filter(b => bookingDate(b) >= weekStart);
+  const monthBkgs = paid.filter(b => bookingDate(b) >= monthStart);
+  const ytdBkgs   = paid.filter(b => bookingDate(b) >= yearStart);
+
+  const fmt = n => '₦' + Number(n).toLocaleString('en-NG');
+  const el  = id => document.getElementById(id);
+  const sub = n  => n + ' booking' + (n !== 1 ? 's' : '');
+
+  if (el('revWeek'))     el('revWeek').textContent     = fmt(sumRevenue(weekBkgs));
+  if (el('revWeekSub'))  el('revWeekSub').textContent  = sub(weekBkgs.length);
+  if (el('revMonth'))    el('revMonth').textContent    = fmt(sumRevenue(monthBkgs));
+  if (el('revMonthSub')) el('revMonthSub').textContent = sub(monthBkgs.length);
+  if (el('revYTD'))      el('revYTD').textContent      = fmt(sumRevenue(ytdBkgs));
+  if (el('revYTDSub'))   el('revYTDSub').textContent   = sub(ytdBkgs.length);
+}
+
+function exportBookingsCSV() {
+  const rows = _allBookings;
+  if (!rows.length) { alert('No bookings to export.'); return; }
+
+  const headers = ['Ref','Guest Name','Phone','Email','Apartment','Check-In','Check-Out','Nights','Total (₦)','Status'];
+  const escape  = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+
+  const csv = [
+    headers.map(escape).join(','),
+    ...rows.map(b => [
+      b.ref, b.guestName, b.phone, b.email, b.apartment,
+      b.checkIn, b.checkOut, b.nights,
+      Number(b.total || 0),
+      b.status || 'paid'
+    ].map(escape).join(','))
+  ].join('\r\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href     = url;
+  a.download = 'accent-homes-bookings-' + date + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── MANUAL BOOKING ──
+async function openManualBooking() {
+  // Populate apartment dropdown from live listings
+  const listings = await getListings();
+  const sel = document.getElementById('mb_apt');
+  sel.innerHTML = '<option value="">— Select apartment —</option>' +
+    listings.map(l => `<option value="${l.id}" data-name="${l.name}" data-loc="${l.location||''}">${l.name}</option>`).join('');
+
+  // Clear fields
+  ['mb_name','mb_email','mb_phone','mb_checkin','mb_checkout','mb_ref','mb_notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('mb_guests').value = '1';
+  document.getElementById('mb_total').value  = '';
+  const err = document.getElementById('mb_err');
+  if (err) err.style.display = 'none';
+
+  document.getElementById('manualBookingModal').style.display = 'flex';
+}
+
+function closeManualBooking() {
+  document.getElementById('manualBookingModal').style.display = 'none';
+}
+
+async function saveManualBooking() {
+  const err  = document.getElementById('mb_err');
+  const btn  = document.getElementById('mb_saveBtn');
+  const hide = () => { err.style.display = 'none'; };
+  const show = msg => { err.textContent = msg; err.style.display = 'block'; };
+  hide();
+
+  const name    = document.getElementById('mb_name').value.trim();
+  const email   = document.getElementById('mb_email').value.trim();
+  const phone   = document.getElementById('mb_phone').value.trim();
+  const aptSel  = document.getElementById('mb_apt');
+  const aptId   = aptSel.value;
+  const aptName = aptSel.selectedOptions[0]?.dataset.name || '';
+  const aptLoc  = aptSel.selectedOptions[0]?.dataset.loc  || '';
+  const checkIn = document.getElementById('mb_checkin').value;
+  const checkOut= document.getElementById('mb_checkout').value;
+  const guests  = Number(document.getElementById('mb_guests').value) || 1;
+  const total   = Number(document.getElementById('mb_total').value)  || 0;
+  const ref     = document.getElementById('mb_ref').value.trim();
+  const notes   = document.getElementById('mb_notes').value.trim();
+
+  if (!name)     return show('Guest name is required.');
+  if (!email || !email.includes('@')) return show('Valid guest email is required.');
+  if (!aptId)    return show('Please select an apartment.');
+  if (!checkIn)  return show('Check-in date is required.');
+  if (!checkOut) return show('Check-out date is required.');
+  if (checkOut <= checkIn) return show('Check-out must be after check-in.');
+  if (total <= 0) return show('Total paid must be greater than 0.');
+  if (!ref)      return show('Paystack reference is required.');
+
+  const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000);
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    const batch = db.batch();
+
+    // Write booking
+    const bookingRef = db.collection('bookings').doc();
+    batch.set(bookingRef, {
+      aptId,
+      aptName,
+      location:         aptLoc,
+      checkIn,
+      checkOut,
+      guests,
+      nights,
+      total,
+      guestName:        name,
+      guestEmail:       email,
+      guestEmail_canon: email.toLowerCase(),
+      phone,
+      paystackRef:      ref,
+      status:           'confirmed',
+      isGuest:          false,
+      guestUid:         null,
+      notes:            notes || 'Manually created by admin',
+      createdAt:        firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Mark listing as booked
+    batch.update(db.collection('listings').doc(aptId), {
+      status:    'booked',
+      available: false
+    });
+
+    await batch.commit();
+
+    closeManualBooking();
+    // Reload bookings panel
+    const updatedBookings = await getBookings();
+    _allBookings = updatedBookings;
+    _updateRevenue(updatedBookings);
+    const filtered = updatedBookings.filter(b => _bookingMatchesFilter(b, _bookingFilter));
+    renderBookings(filtered, 'allBookings');
+    alert(`✅ Booking created for ${name}. Listing marked as booked.`);
+  } catch (e) {
+    show('Failed to save booking: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create Booking';
+  }
+}
+
+// ── LOAD DATA ──
+async function loadAdminData() {
+  const [listings, inquiries, bookings] = await Promise.all([getListings(), getInquiries(), getBookings()]);
+  document.getElementById("statTotal").textContent    = listings.length;
+  document.getElementById("statAvail").textContent    = listings.filter(l=>l.available!==false&&l.status!=="booked").length;
+  document.getElementById("statBooked").textContent   = listings.filter(l=>l.status==="booked").length;
+  document.getElementById("statInquiries").textContent= inquiries.length;
+  _allBookings = bookings;
+  _updateRevenue(bookings);
+  renderAdminTable(listings);
+  renderInquiries(inquiries,"recentInquiries",5);
+  renderInquiries(inquiries,"allInquiries");
+  const filtered = bookings.filter(b => _bookingMatchesFilter(b, _bookingFilter));
+  renderBookings(filtered, "allBookings");
+
+  if (firebaseReady) {
+    try {
+      const [statsSnap, guestSnap] = await Promise.all([
+        db.collection('settings').doc('siteStats').get(),
+        db.collection('guestProfiles').get()
+      ]);
+      if (statsSnap.exists) {
+        const v = statsSnap.data().views || 0;
+        document.getElementById('statViews').textContent = v.toLocaleString();
+      }
+      document.getElementById('statGuests').textContent = guestSnap.size;
+    } catch(e) {}
+  }
+}
+
+function renderAdminTable(listings) {
+  const tbody = document.getElementById("adminListingsTable");
+  if (!listings.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">No listings yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = listings.map(l=>`
+    <tr>
+      <td><strong>${esc(l.name)}</strong></td>
+      <td>${esc(l.location||"—")}</td>
+      <td>₦${Number(l.priceNight||0).toLocaleString()}</td>
+      <td>${esc(l.bedrooms||"—")} bed</td>
+      <td>₦${Number(l.cautionDeposit||0).toLocaleString()}</td>
+      <td>
+        <span class="status-badge ${l.status==="booked"?"":"status-"+(l.available===false?"unavailable":"available")}"
+          style="${l.status==="booked"?"background:rgba(181,87,55,0.1);color:var(--bronze)":""}">
+          ${l.status==="booked"?"💳 Booked":l.available===false?"Unavailable":"Available"}
+        </span>
+      </td>
+      <td>
+        <div class="table-actions">
+          <button class="action-btn action-edit" onclick="openEditModal('${esc(l.id)}')">Edit</button>
+          <button class="action-btn action-toggle" onclick="toggleAvailability('${esc(l.id)}', ${l.available!==false})">
+            ${l.status==="booked"||l.available===false?"Mark Available":"Mark Taken"}
+          </button>
+          <button class="action-btn action-delete" onclick="confirmDelete('${esc(l.id)}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function renderInquiries(inquiries, id, limit=null) {
+  const el = document.getElementById(id);
+  const list = limit ? inquiries.slice(0,limit) : inquiries;
+  if (!list.length) { el.innerHTML='<div style="padding:32px;text-align:center;color:var(--muted)">No inquiries yet.</div>'; return; }
+  el.innerHTML = list.map(inq=>`
+    <div class="inquiry-item">
+      <div class="inquiry-dot"></div>
+      <div>
+        <div class="inquiry-name">${esc(inq.name)}</div>
+        <div class="inquiry-meta">📞 ${esc(inq.phone)} &nbsp;|&nbsp; 📅 ${esc(inq.checkIn||"—")} → ${esc(inq.checkOut||"—")} ${inq.apt?`&nbsp;|&nbsp; 🏠 ${esc(inq.apt)}`:""}</div>
+        ${inq.message?`<div class="inquiry-msg">${esc(inq.message)}</div>`:""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderBookings(bookings, id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!bookings.length) { el.innerHTML='<div style="padding:32px;text-align:center;color:var(--muted)">No confirmed bookings yet.</div>'; return; }
+  el.innerHTML = bookings.map(b=>`
+    <div class="booking-item">
+      <div class="inquiry-dot"></div>
+      <div style="flex:1">
+        <div class="booking-ref">Ref: ${esc(b.ref)}</div>
+        <div class="booking-guest">${esc(b.guestName)}</div>
+        <div class="booking-meta">📞 ${esc(b.phone)}<br>✉️ ${esc(b.email)}<br>🏠 ${esc(b.apartment)}<br>📅 ${esc(b.checkIn)} → ${esc(b.checkOut)} (${esc(b.nights)} night${b.nights>1?"s":""})</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="booking-amount">₦${Number(b.total||0).toLocaleString()}</div>
+        <div style="font-size:0.7rem;color:var(--muted);margin-top:4px">Rent + Caution</div>
+        ${b.status==='cancelled'
+          ? `<div style="font-size:0.7rem;color:var(--red);margin-top:4px;font-weight:700">✕ Cancelled</div>`
+          : b.status==='confirmed'
+            ? `<div style="font-size:0.7rem;color:var(--green);margin-top:4px;font-weight:700">✓ Confirmed</div>`
+            : `<div style="font-size:0.7rem;color:var(--green);margin-top:4px;font-weight:700">✓ Paid</div>`}
+        <div class="tbl-actions" style="margin-top:8px;justify-content:flex-end;">
+          ${b.status!=='confirmed'?`<button class="abtn abtn-approve" onclick="updateBookingStatus('${esc(b.id)}','confirmed')">Approve</button>`:''}
+          ${b.status!=='cancelled'?`<button class="abtn abtn-reject"  onclick="updateBookingStatus('${esc(b.id)}','cancelled')">Cancel</button>`:''}
+          <button class="abtn abtn-del" onclick="deleteBooking('${esc(b.id)}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ── MODAL ──
+const ICON_OPTIONS = [
+  { key:'wifi',      fa:'fa-wifi',           label:'Wi-Fi' },
+  { key:'ac',        fa:'fa-snowflake',       label:'Air Conditioning' },
+  { key:'tv',        fa:'fa-tv',              label:'Smart TV' },
+  { key:'kitchen',   fa:'fa-kitchen-set',     label:'Kitchen' },
+  { key:'parking',   fa:'fa-square-parking',  label:'Parking' },
+  { key:'pool',      fa:'fa-person-swimming', label:'Swimming Pool' },
+  { key:'security',  fa:'fa-shield-halved',   label:'24/7 Security' },
+  { key:'generator', fa:'fa-bolt',            label:'Backup Generator' },
+  { key:'washer',    fa:'fa-shirt',           label:'Washing Machine' },
+  { key:'balcony',   fa:'fa-city',            label:'Balcony' },
+  { key:'workspace', fa:'fa-laptop',          label:'Work Desk' },
+  { key:'gym',       fa:'fa-dumbbell',        label:'Gym Access' },
+  { key:'hot-water', fa:'fa-fire',            label:'Hot Water' },
+  { key:'cctv',      fa:'fa-video',           label:'CCTV' },
+  { key:'gated',     fa:'fa-lock',            label:'Gated Estate' },
+  { key:'fridge',    fa:'fa-temperature-low', label:'Refrigerator' },
+];
+let currentAmenities = [];
+
+function openAddModal() {
+  currentAmenities = []; uploadedPhotos = [];
+  renderPhotoGrid();
+  document.getElementById("modalTitle").textContent = "Add New Apartment";
+  document.getElementById("editingId").value = "";
+  ["fieldName","fieldLocation","fieldPriceNight","fieldPriceMonth","fieldCaution","fieldCautionLarge","fieldMaxGuests","fieldDesc","fieldImage"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("fieldBedrooms").value = "2";
+  document.getElementById("fieldAvailable").value = "true";
+  renderAmenitiesList();
+  document.getElementById("blocksSection").style.display = "none";
+  document.getElementById("listingModal").classList.add("open");
+}
+async function openEditModal(id) {
+  const listings = await getListings();
+  const l = listings.find(x=>x.id===id);
+  if (!l) return;
+  currentAmenities = (l.amenities || []).map(a =>
+    typeof a === 'string' ? { icon: '', label: a, description: '' } : a
+  );
+  // Load existing photos into the grid (normalise strings → {url,label} objects)
+  uploadedPhotos = (l.photos && l.photos.length)
+    ? l.photos.map(p => typeof p === 'string' ? { url: p, label: '' } : p)
+    : (l.image ? [{ url: l.image, label: '' }] : []);
+  document.getElementById("modalTitle").textContent = "Edit Apartment";
+  document.getElementById("editingId").value = id;
+  document.getElementById("fieldName").value = l.name||"";
+  document.getElementById("fieldLocation").value = l.location||"";
+  document.getElementById("fieldBedrooms").value = l.bedrooms||"2";
+  document.getElementById("fieldPriceNight").value = l.priceNight||"";
+  document.getElementById("fieldPriceMonth").value = l.priceMonth||"";
+  document.getElementById("fieldCaution").value = l.cautionDeposit||"";
+  document.getElementById("fieldCautionLarge").value = l.cautionLarge||"";
+  document.getElementById("fieldMaxGuests").value = l.maxGuests||"";
+  document.getElementById("fieldDesc").value = l.description||"";
+  document.getElementById("fieldImage").value = l.image||"";
+  document.getElementById("fieldAvailable").value = String(l.available!==false);
+  renderPhotoGrid();
+  renderAmenitiesList();
+  loadBlocks(id);
+  document.getElementById("listingModal").classList.add("open");
+}
+function closeModal() { document.getElementById("listingModal").classList.remove("open"); }
+
+function toggleAddAmenityForm() {
+  const form = document.getElementById('amenityAddForm');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    document.getElementById('amenityIcon').innerHTML =
+      ICON_OPTIONS.map(o => `<option value="${o.key}">${o.label}</option>`).join('');
+    document.getElementById('amenityLabel').value = '';
+    document.getElementById('amenityDesc').value  = '';
+    document.getElementById('amenityLabel').focus();
+  }
+}
+function addAmenity() {
+  const icon  = document.getElementById('amenityIcon').value;
+  const label = document.getElementById('amenityLabel').value.trim();
+  const desc  = document.getElementById('amenityDesc').value.trim();
+  if (!label) { alert('Label is required.'); return; }
+  currentAmenities.push({ icon, label, description: desc });
+  renderAmenitiesList();
+  document.getElementById('amenityAddForm').classList.remove('open');
+}
+function removeAmenity(idx) {
+  currentAmenities.splice(idx, 1);
+  renderAmenitiesList();
+}
+function moveAmenity(idx, dir) {
+  const to = idx + dir;
+  if (to < 0 || to >= currentAmenities.length) return;
+  [currentAmenities[idx], currentAmenities[to]] = [currentAmenities[to], currentAmenities[idx]];
+  renderAmenitiesList();
+}
+function renderAmenitiesList() {
+  const iconMap = Object.fromEntries(ICON_OPTIONS.map(o => [o.key, o.fa]));
+  document.getElementById('amenitiesList').innerHTML = currentAmenities.length
+    ? currentAmenities.map((a, i) => {
+        const obj = typeof a === 'string' ? { icon:'', label:a, description:'' } : a;
+        const fa  = obj.icon ? (iconMap[obj.icon] || 'fa-circle-check') : 'fa-circle-check';
+        return `<div class="amenity-row">
+          <div class="amenity-row-icon"><i class="fa-solid ${fa}"></i></div>
+          <div class="amenity-row-body">
+            <div class="amenity-row-label">${esc(obj.label)}</div>
+            ${obj.description ? `<div class="amenity-row-desc">${esc(obj.description)}</div>` : ''}
+          </div>
+          <div class="amenity-row-actions">
+            <button class="amenity-row-btn" onclick="moveAmenity(${i},-1)" title="Move up">↑</button>
+            <button class="amenity-row-btn" onclick="moveAmenity(${i},1)"  title="Move down">↓</button>
+            <button class="amenity-row-btn del" onclick="removeAmenity(${i})" title="Remove">✕</button>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:0.8rem;color:var(--muted);padding:6px 0">No amenities added yet.</div>';
+}
+
+// ── BLOCKED DATES ──────────────────────────────────────────
+async function loadBlocks(listingId) {
+  const section = document.getElementById('blocksSection');
+  const list    = document.getElementById('blocksList');
+  if (!listingId) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  list.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:4px 0">Loading…</div>';
+  try {
+    const snap = await db.collection('listings').doc(listingId).collection('blocks').orderBy('startDate').get();
+    if (snap.empty) {
+      list.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:4px 0">No dates blocked.</div>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <span style="font-size:0.82rem;font-weight:600">${esc(d.startDate)} → ${esc(d.endDate)}</span>
+          ${d.reason ? `<span style="font-size:0.75rem;color:var(--muted);margin-left:8px">${esc(d.reason)}</span>` : ''}
+        </div>
+        <button onclick="deleteBlock('${esc(listingId)}','${doc.id}')" style="background:none;border:1px solid #dc2626;border-radius:4px;color:#dc2626;font-size:0.72rem;padding:4px 10px;cursor:pointer;flex-shrink:0">Delete</button>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:0.8rem;color:#dc2626;">Failed to load blocks.</div>';
+  }
+}
+
+async function saveBlock() {
+  const listingId = document.getElementById('editingId').value;
+  if (!listingId) { alert('Save the listing first before blocking dates.'); return; }
+  const start  = document.getElementById('blockStart').value;
+  const end    = document.getElementById('blockEnd').value;
+  const reason = document.getElementById('blockReason').value.trim();
+  if (!start || !end) { alert('Please select both a start and end date.'); return; }
+  if (end < start)    { alert('End date must be on or after start date.'); return; }
+  try {
+    await db.collection('listings').doc(listingId).collection('blocks').add({
+      startDate: start,
+      endDate:   end,
+      reason:    reason,
+      createdBy: auth.currentUser?.uid || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('blockStart').value  = '';
+    document.getElementById('blockEnd').value    = '';
+    document.getElementById('blockReason').value = '';
+    await loadBlocks(listingId);
+  } catch(e) {
+    alert('Failed to save block: ' + e.message);
+  }
+}
+
+async function deleteBlock(listingId, blockId) {
+  if (!confirm('Delete this date block? Guests will be able to book these dates again.')) return;
+  try {
+    await db.collection('listings').doc(listingId).collection('blocks').doc(blockId).delete();
+    await loadBlocks(listingId);
+  } catch(e) {
+    alert('Failed to delete block: ' + e.message);
+  }
+}
+
+async function saveListing() {
+  const id = document.getElementById("editingId").value || null;
+  const data = {
+    name:           document.getElementById("fieldName").value.trim(),
+    location:       document.getElementById("fieldLocation").value.trim(),
+    bedrooms:       document.getElementById("fieldBedrooms").value,
+    priceNight:     Number(document.getElementById("fieldPriceNight").value),
+    priceMonth:     Number(document.getElementById("fieldPriceMonth").value),
+    cautionDeposit: Number(document.getElementById("fieldCaution").value||0),
+    cautionLarge:   Number(document.getElementById("fieldCautionLarge").value||0),
+    maxGuests:      Number(document.getElementById("fieldMaxGuests").value||0),
+    description:    document.getElementById("fieldDesc").value.trim(),
+    photos:         [...uploadedPhotos],
+    image:          (uploadedPhotos[0] && uploadedPhotos[0].url) || uploadedPhotos[0] || document.getElementById("fieldImage").value.trim() || '',
+    amenities:      currentAmenities,
+    available:      document.getElementById("fieldAvailable").value==="true",
+    status:         document.getElementById("fieldAvailable").value==="true"?"available":"unavailable"
+  };
+  if (!data.name) { alert("Please enter an apartment name."); return; }
+  await saveListing_db(data, id);
+  closeModal();
+  loadAdminData();
+}
+async function toggleAvailability(id, currentlyAvailable) {
+  const newAvail = !currentlyAvailable;
+  await saveListing_db({available:newAvail, status:newAvail?"available":"unavailable"}, id);
+  loadAdminData();
+}
+async function confirmDelete(id) {
+  if (confirm("Delete this listing? This cannot be undone.")) {
+    await deleteListing_db(id);
+    loadAdminData();
+  }
+}
+
+// ── SETTINGS ──
+async function saveSettings() {
+  const rawWA = document.getElementById("settingWA").value.trim();
+  const cleanWA = rawWA.replace(/\s+/g,'').replace(/[^\d+]/g,'');
+  const waDigits = cleanWA.replace(/\D/g,'');
+  if (waDigits.length > 15) {
+    alert("WhatsApp number looks invalid — make sure only ONE number is entered (e.g. +2349111700047).");
+    return;
+  }
+  const s = {
+    whatsapp: cleanWA,
+    email:    document.getElementById("settingEmail").value.trim(),
+    address:  document.getElementById("settingAddr").value.trim()
+  };
+  if (firebaseReady) {
+    try {
+      await db.collection("settings").doc("siteConfig").set(s, { merge: true });
+      showSettingsSaved();
+    } catch(e) { alert("Save failed: " + e.message); }
+  } else {
+    localStorage.setItem("lh_settings", JSON.stringify(s));
+    showSettingsSaved();
+  }
+}
+
+function showSettingsSaved() {
+  const btn = document.querySelector('.settings-save');
+  const orig = btn.textContent;
+  btn.textContent = '✅ Saved!';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+}
+
+async function loadSettings() {
+  let s = {};
+  if (firebaseReady) {
+    try {
+      const doc = await db.collection("settings").doc("siteConfig").get();
+      if (doc.exists) s = doc.data();
+    } catch(e) {}
+  } else {
+    s = JSON.parse(localStorage.getItem("lh_settings") || "{}");
+  }
+  const _v = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  _v("settingWA",   s.whatsapp);
+  _v("settingEmail", s.email);
+  _v("settingAddr",  s.address);
+}
+
+// ============================================================
+// MAINTENANCE MODE
+// ============================================================
+async function loadMaintenanceState() {
+  if (!firebaseReady) return;
+  try {
+    const snap = await db.collection('settings').doc('maintenance').get();
+    const d    = snap.exists ? snap.data() : {};
+    const toggle   = document.getElementById('maintToggle');
+    const label    = document.getElementById('maintStatusLabel');
+    const msgInput = document.getElementById('maintMessage');
+    if (toggle)   toggle.checked   = !!d.enabled;
+    if (label)    label.textContent = d.enabled ? 'On — site is offline for visitors' : 'Off';
+    if (msgInput && d.message) msgInput.value = d.message;
+  } catch (_) {}
+}
+
+async function toggleMaintenance(checkbox) {
+  const enabling = checkbox.checked;
+  if (enabling && !confirm('This will take the public site offline immediately for all non-admin visitors. Confirm?')) {
+    checkbox.checked = false;
+    return;
+  }
+  const msg   = document.getElementById('maintMessage')?.value?.trim() || "We'll be back shortly. Thank you for your patience.";
+  const label = document.getElementById('maintStatusLabel');
+  try {
+    await db.collection('settings').doc('maintenance').set({ enabled: enabling, message: msg }, { merge: true });
+    if (label) label.textContent = enabling ? 'On — site is offline for visitors' : 'Off';
+  } catch (e) {
+    alert('Failed to update maintenance mode: ' + e.message);
+    checkbox.checked = !enabling;
+  }
+}
+
+async function saveMaintMessage() {
+  const msg = document.getElementById('maintMessage')?.value?.trim();
+  if (!msg) return;
+  try {
+    await db.collection('settings').doc('maintenance').set({ message: msg }, { merge: true });
+    const btn = document.getElementById('maintSaveBtn');
+    if (btn) {
+      const o = btn.textContent;
+      btn.textContent = '✅ Saved!';
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = o; btn.disabled = false; }, 2500);
+    }
+  } catch (e) {
+    alert('Failed to save message: ' + e.message);
+  }
+}
+
+// ============================================================
+// CLOUDINARY CONFIG
+// ============================================================
+
+// ============================================================
+// PHOTO UPLOAD
+// ============================================================
+let uploadedPhotos = [];
+
+function handleDrop(e) {
+  e.preventDefault();
+  const z = document.getElementById('uploadZone');
+  z.style.borderColor = 'var(--ash-faint)';
+  z.style.background  = '#fafafa';
+  handleFileSelect(e.dataTransfer.files);
+}
+
+function handleFileSelect(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) { alert('Only image files please.'); return; }
+    if (file.size > 5 * 1024 * 1024)    { alert(file.name + ' exceeds 5MB.'); return; }
+    uploadToCloudinary(file);
+  });
+}
+
+async function uploadToCloudinary(file) {
+  const progressEl = document.getElementById('uploadProgress');
+  const barEl      = document.getElementById('uploadBar');
+  const pctEl      = document.getElementById('uploadPct');
+  const nameEl     = document.getElementById('uploadFileName');
+
+  progressEl.style.display = 'block';
+  nameEl.textContent = file.name;
+  barEl.style.width  = '30%';
+  pctEl.textContent  = 'Uploading…';
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  fd.append('folder', 'accent-homes/listings');
+
+  try {
+    barEl.style.width = '60%';
+    const res  = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', { method:'POST', body:fd });
+    barEl.style.width = '90%';
+    const data = await res.json();
+
+    if (data.secure_url) {
+      barEl.style.width = '100%';
+      pctEl.textContent = 'Done ✓';
+      setTimeout(() => { progressEl.style.display='none'; barEl.style.width='0%'; pctEl.textContent='0%'; }, 900);
+      addPhoto(data.secure_url, file.name);
+    } else {
+      throw new Error(data.error ? data.error.message : 'Upload failed');
+    }
+  } catch(err) {
+    progressEl.style.display = 'none';
+    barEl.style.width = '0%';
+    alert('Upload error: ' + err.message);
+  }
+}
+
+function addPhoto(url, name) {
+  if (!url || uploadedPhotos.some(p => p.url === url)) return;
+  uploadedPhotos.push({ url, label: '' });
+  renderPhotoGrid();
+}
+
+function removePhoto(url) {
+  uploadedPhotos = uploadedPhotos.filter(p => p.url !== url);
+  renderPhotoGrid();
+}
+
+function setMainPhoto(url) {
+  const entry = uploadedPhotos.find(p => p.url === url);
+  if (!entry) return;
+  uploadedPhotos = [entry, ...uploadedPhotos.filter(p => p.url !== url)];
+  renderPhotoGrid();
+}
+
+function updatePhotoLabel(url, label) {
+  const entry = uploadedPhotos.find(p => p.url === url);
+  if (entry) entry.label = label;
+}
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photoGrid');
+  if (!grid) return;
+  if (!uploadedPhotos.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = uploadedPhotos.map((p, i) => `
+    <div style="width:120px;flex-shrink:0;">
+      <div style="position:relative;width:120px;height:80px;border-radius:6px;overflow:hidden;border:2px solid ${i===0?'#3D3D3D':'#EBEBEB'};">
+        <img src="${p.url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='#EBEBEB'">
+        ${i===0?'<div style="position:absolute;top:3px;left:3px;background:#3D3D3D;color:#fff;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:700;">COVER</div>':''}
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);display:flex;justify-content:space-between;padding:3px 5px;">
+          ${i!==0?`<button onclick="setMainPhoto('${p.url}')" style="background:none;border:none;color:#fff;font-size:11px;cursor:pointer;padding:0;" title="Set as cover">&#9733;</button>`:'<span></span>'}
+          <button onclick="removePhoto('${p.url}')" style="background:none;border:none;color:#fff;font-size:11px;cursor:pointer;padding:0;" title="Remove">&#x2715;</button>
+        </div>
+      </div>
+      <input type="text" value="${(p.label||'').replace(/"/g,'&quot;')}" placeholder="e.g. Living room"
+        oninput="updatePhotoLabel('${p.url}', this.value)"
+        style="width:100%;margin-top:4px;font-size:0.68rem;border:1px solid #ddd;border-radius:4px;padding:3px 6px;font-family:inherit;box-sizing:border-box;">
+    </div>
+  `).join('');
+}
+
+
+// ============================================================
+// CLOUDINARY UPLOAD HELPER
+// ============================================================
+async function cloudinaryUpload(file, onProgress) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  fd.append('folder', 'accent-homes');
+
+  const res  = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', { method:'POST', body:fd });
+  const data = await res.json();
+  if (data.secure_url) return data.secure_url;
+  throw new Error(data.error ? data.error.message : 'Upload failed');
+}
+
+// ============================================================
+// NEIGHBOURHOOD — CRUD
+// ============================================================
+async function getPlaces() {
+  if (firebaseReady) {
+    const s = await db.collection("neighbourhood").orderBy("createdAt","asc").get();
+    return s.docs.map(d => ({ id:d.id, ...d.data() }));
+  }
+  return JSON.parse(localStorage.getItem("ah_places") || "[]");
+}
+
+async function savePlace_db(data, id=null) {
+  if (firebaseReady) {
+    if (id) { await db.collection("neighbourhood").doc(id).update(data); return id; }
+    const r = await db.collection("neighbourhood").add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return r.id;
+  }
+  const l = JSON.parse(localStorage.getItem("ah_places") || "[]");
+  if (id) { const i=l.findIndex(x=>x.id===id); if(i>-1) l[i]={...l[i],...data}; }
+  else { l.push({ ...data, id:"p_"+Date.now(), createdAt:new Date().toISOString() }); }
+  localStorage.setItem("ah_places", JSON.stringify(l));
+  return id;
+}
+
+async function deletePlace_db(id) {
+  if (firebaseReady) { await db.collection("neighbourhood").doc(id).delete(); return; }
+  let l = JSON.parse(localStorage.getItem("ah_places") || "[]");
+  localStorage.setItem("ah_places", JSON.stringify(l.filter(x=>x.id!==id)));
+}
+
+async function renderPlacesTable() {
+  const places = await getPlaces();
+  const tbody  = document.getElementById("placesTableBody");
+  if (!places.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No places yet. Add your first neighbourhood spot.</td></tr>';
+    return;
+  }
+  const catIcons = { dining:'<i class="fa-solid fa-utensils"></i>', fitness:'<i class="fa-solid fa-dumbbell"></i>', shopping:'<i class="fa-solid fa-bag-shopping"></i>', health:'<i class="fa-solid fa-hospital"></i>', leisure:'<i class="fa-solid fa-masks-theater"></i>', transport:'<i class="fa-solid fa-car"></i>' };
+  tbody.innerHTML = places.map(p => `
+    <tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td>${catIcons[p.category]||'<i class="fa-solid fa-location-dot"></i>'} ${esc(p.category)}</td>
+      <td>${esc(p.distance||'—')}</td>
+      <td>${esc(p.hours||'—')}</td>
+      <td>
+        <div class="tbl-actions">
+          <button class="abtn abtn-edit" onclick="openEditPlace('${esc(p.id)}')">Edit</button>
+          <button class="abtn abtn-del"  onclick="deletePlace('${esc(p.id)}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let placePhotoUploaded = '';
+
+function openPlaceModal() {
+  placePhotoUploaded = '';
+  document.getElementById('placeEditId').value   = '';
+  document.getElementById('placeModalTitle').textContent = 'Add Neighbourhood Place';
+  ['placeName','placeDistance','placeHours','placeDesc','placePhotoUrl'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('placeCat').value = 'dining';
+  document.getElementById('placePhotoPreview').style.display = 'none';
+  document.getElementById('placeModal').classList.add('open');
+}
+
+async function openEditPlace(id) {
+  const places = await getPlaces();
+  const p = places.find(x => x.id === id);
+  if (!p) return;
+  placePhotoUploaded = p.image || '';
+  document.getElementById('placeEditId').value   = id;
+  document.getElementById('placeModalTitle').textContent = 'Edit Place';
+  document.getElementById('placeName').value     = p.name || '';
+  document.getElementById('placeCat').value      = p.category || 'dining';
+  document.getElementById('placeDistance').value = p.distance || '';
+  document.getElementById('placeHours').value    = p.hours || '';
+  document.getElementById('placeDesc').value     = p.description || '';
+  document.getElementById('placePhotoUrl').value = p.image || '';
+  if (p.image) {
+    const prev = document.getElementById('placePhotoPreview');
+    prev.src = p.image; prev.style.display = 'block';
+  }
+  document.getElementById('placeModal').classList.add('open');
+}
+
+function closePlaceModal() { document.getElementById('placeModal').classList.remove('open'); }
+
+async function uploadPlacePhoto(file) {
+  if (!file) return;
+  try {
+    const url = await cloudinaryUpload(file);
+    placePhotoUploaded = url;
+    document.getElementById('placePhotoUrl').value = url;
+    const prev = document.getElementById('placePhotoPreview');
+    prev.src = url; prev.style.display = 'block';
+  } catch(e) { alert('Photo upload failed: ' + e.message); }
+}
+
+async function savePlace() {
+  const id = document.getElementById('placeEditId').value || null;
+  const data = {
+    name:        document.getElementById('placeName').value.trim(),
+    category:    document.getElementById('placeCat').value,
+    distance:    document.getElementById('placeDistance').value.trim(),
+    hours:       document.getElementById('placeHours').value.trim(),
+    description: document.getElementById('placeDesc').value.trim(),
+    image:       placePhotoUploaded || document.getElementById('placePhotoUrl').value.trim()
+  };
+  if (!data.name) { alert('Please enter a place name.'); return; }
+  await savePlace_db(data, id);
+  closePlaceModal();
+  renderPlacesTable();
+}
+
+async function deletePlace(id) {
+  if (confirm('Delete this place? This cannot be undone.')) {
+    await deletePlace_db(id);
+    renderPlacesTable();
+  }
+}
+
+// ============================================================
+// TESTIMONIALS — CRUD
+// ============================================================
+async function getTestimonials() {
+  if (firebaseReady) {
+    const s = await db.collection("testimonials").orderBy("createdAt","desc").get();
+    return s.docs.map(d => ({ id:d.id, ...d.data() }));
+  }
+  return JSON.parse(localStorage.getItem("ah_testimonials") || "[]");
+}
+
+async function saveTestimonial_db(data, id=null) {
+  if (firebaseReady) {
+    if (id) { await db.collection("testimonials").doc(id).update(data); return; }
+    await db.collection("testimonials").add({ ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return;
+  }
+  const l = JSON.parse(localStorage.getItem("ah_testimonials") || "[]");
+  if (id) { const i=l.findIndex(x=>x.id===id); if(i>-1) l[i]={...l[i],...data}; }
+  else { l.unshift({ ...data, id:"t_"+Date.now(), createdAt:new Date().toISOString() }); }
+  localStorage.setItem("ah_testimonials", JSON.stringify(l));
+}
+
+async function deleteTestimonial_db(id) {
+  if (firebaseReady) { await db.collection("testimonials").doc(id).delete(); return; }
+  let l = JSON.parse(localStorage.getItem("ah_testimonials") || "[]");
+  localStorage.setItem("ah_testimonials", JSON.stringify(l.filter(x=>x.id!==id)));
+}
+
+async function renderTestimonialsList() {
+  const list = await getTestimonials();
+  const el   = document.getElementById('testimonialsList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state">No testimonials yet.</div>'; return; }
+  const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
+  el.innerHTML = list.map(t => `
+    <div class="iitem" style="justify-content:space-between;align-items:flex-start;">
+      <div style="display:flex;gap:12px;align-items:flex-start;flex:1;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--ash-faint);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--ash);font-size:0.85rem;flex-shrink:0;">${esc(t.initials||'?')}</div>
+        <div>
+          <div class="iname">${esc(t.guestName)}</div>
+          <div class="imeta">${esc(t.role)} &nbsp;|&nbsp; <span style="color:#C9A96E;">${stars(t.rating||5)}</span></div>
+          <div class="imsg">&ldquo;${esc(t.reviewText)}&rdquo;</div>
+        </div>
+      </div>
+      <div class="tbl-actions" style="flex-shrink:0;margin-left:12px;">
+        <button class="abtn abtn-edit" onclick="openEditTestimonial('${esc(t.id)}')">Edit</button>
+        <button class="abtn abtn-del"  onclick="deleteTestimonial('${esc(t.id)}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openTestimonialModal() {
+  document.getElementById('testimonialEditId').value = '';
+  document.getElementById('testimonialModalTitle').textContent = 'Add Guest Review';
+  ['testimonialName','testimonialRole','testimonialText','testimonialInitials'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('testimonialRating').value = '5';
+  document.getElementById('testimonialModal').classList.add('open');
+}
+
+async function openEditTestimonial(id) {
+  const list = await getTestimonials();
+  const t = list.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('testimonialEditId').value    = id;
+  document.getElementById('testimonialModalTitle').textContent = 'Edit Review';
+  document.getElementById('testimonialName').value      = t.guestName || '';
+  document.getElementById('testimonialRole').value      = t.role || '';
+  document.getElementById('testimonialRating').value    = t.rating || '5';
+  document.getElementById('testimonialText').value      = t.reviewText || '';
+  document.getElementById('testimonialInitials').value  = t.initials || '';
+  document.getElementById('testimonialModal').classList.add('open');
+}
+
+function closeTestimonialModal() { document.getElementById('testimonialModal').classList.remove('open'); }
+
+async function saveTestimonial() {
+  const id = document.getElementById('testimonialEditId').value || null;
+  const data = {
+    guestName:  document.getElementById('testimonialName').value.trim(),
+    role:       document.getElementById('testimonialRole').value.trim(),
+    rating:     Number(document.getElementById('testimonialRating').value),
+    reviewText: document.getElementById('testimonialText').value.trim(),
+    initials:   document.getElementById('testimonialInitials').value.trim().toUpperCase()
+  };
+  if (!data.guestName || !data.reviewText) { alert('Name and review text are required.'); return; }
+  await saveTestimonial_db(data, id);
+  closeTestimonialModal();
+  renderTestimonialsList();
+}
+
+async function deleteTestimonial(id) {
+  if (confirm('Delete this review?')) {
+    await deleteTestimonial_db(id);
+    renderTestimonialsList();
+  }
+}
+
+// ============================================================
+// GALLERY — CRUD
+// ============================================================
+async function getGalleryPhotos() {
+  if (firebaseReady) {
+    const s = await db.collection("gallery").orderBy("order","asc").get();
+    return s.docs.map(d => ({ id:d.id, ...d.data() }));
+  }
+  return JSON.parse(localStorage.getItem("ah_gallery") || "[]");
+}
+
+async function saveGalleryPhoto(url, order) {
+  if (firebaseReady) {
+    await db.collection("gallery").add({ url, order, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return;
+  }
+  const l = JSON.parse(localStorage.getItem("ah_gallery") || "[]");
+  l.push({ url, order, id:"g_"+Date.now() });
+  localStorage.setItem("ah_gallery", JSON.stringify(l));
+}
+
+async function deleteGalleryPhoto(id) {
+  if (firebaseReady) { await db.collection("gallery").doc(id).delete(); return; }
+  let l = JSON.parse(localStorage.getItem("ah_gallery") || "[]");
+  localStorage.setItem("ah_gallery", JSON.stringify(l.filter(x=>x.id!==id)));
+}
+
+async function uploadGalleryPhotos(files) {
+  const existing = await getGalleryPhotos();
+  let order = existing.length;
+
+  const progEl   = document.getElementById('galleryUploadProgress');
+  const barEl    = document.getElementById('galleryUploadBar');
+  const pctEl    = document.getElementById('galleryUploadPct');
+  const nameEl   = document.getElementById('galleryUploadName');
+
+  for (const file of Array.from(files)) {
+    if (!file.type.startsWith('image/')) continue;
+    progEl.style.display = 'block';
+    nameEl.textContent   = file.name;
+    barEl.style.width    = '30%';
+    pctEl.textContent    = 'Uploading…';
+
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CLOUDINARY_PRESET);
+      fd.append('folder', 'accent-homes/gallery');
+      barEl.style.width = '60%';
+      const res  = await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload', { method:'POST', body:fd });
+      barEl.style.width = '90%';
+      const data = await res.json();
+      if (data.secure_url) {
+        await saveGalleryPhoto(data.secure_url, order++);
+        barEl.style.width = '100%';
+        pctEl.textContent = 'Done ✓';
+      }
+    } catch(e) { alert('Upload failed: ' + e.message); }
+
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  progEl.style.display = 'none';
+  barEl.style.width    = '0%';
+  renderGalleryGrid();
+}
+
+async function renderGalleryGrid() {
+  const photos = await getGalleryPhotos();
+  const grid   = document.getElementById('galleryGrid');
+  if (!photos.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No gallery photos yet. Upload your first photo.</div>';
+    return;
+  }
+  grid.innerHTML = photos.map(p => `
+    <div style="position:relative;border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:var(--ash-faint);">
+      <img src="${p.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+      <button onclick="deleteGalleryPhoto('${p.id}').then(renderGalleryGrid)"
+        style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// HOST CARD — SAVE / LOAD
+// ============================================================
+async function loadHostCard() {
+  let data = {};
+  if (firebaseReady) {
+    try {
+      const doc = await db.collection("settings").doc("hostCard").get();
+      if (doc.exists) data = doc.data();
+    } catch(e) {}
+  } else {
+    data = JSON.parse(localStorage.getItem("ah_hostCard") || "{}");
+  }
+  const _v = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  _v('hostName', data.name);
+  _v('hostTitle', data.title);
+  _v('hostBio', data.bio);
+  _v('hostWhatsApp', data.whatsapp);
+  _v('hostRating', data.rating);
+  _v('hostResponse', data.response);
+  _v('hostSince', data.since);
+  _v('hostResponseTime', data.responseTime);
+  if (data.badges && Array.isArray(data.badges)) {
+    data.badges.forEach((b, i) => {
+      const cb  = document.getElementById('badge' + i);
+      const txt = document.getElementById('badgeText' + i);
+      if (cb)  cb.checked = b.on !== false;
+      if (txt && b.text) txt.value = b.text;
+    });
+  }
+  if (data.photo) {
+    document.getElementById('hostPhotoUrl').value = data.photo;
+    const imgHtml = `<img src="${data.photo}" style="width:100%;height:100%;object-fit:cover;">`;
+    const hav = document.getElementById('hostAvatarPreview');
+    const pav = document.getElementById('previewAvatar');
+    if (hav) hav.innerHTML = imgHtml;
+    if (pav) pav.innerHTML = imgHtml;
+  }
+  updateHostPreview();
+}
+
+async function uploadHostPhoto(file) {
+  if (!file) return;
+  try {
+    const url = await cloudinaryUpload(file);
+    document.getElementById('hostPhotoUrl').value = url;
+    const imgHtml = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+    const hav = document.getElementById('hostAvatarPreview');
+    const pav = document.getElementById('previewAvatar');
+    if(hav) hav.innerHTML = imgHtml;
+    if(pav) pav.innerHTML = imgHtml;
+  } catch(e) { alert('Photo upload failed: ' + e.message); }
+}
+
+async function saveHostCard() {
+  const _g = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const badges = [0,1,2].map(i => ({
+    on:   (document.getElementById('badge'+i)||{checked:true}).checked,
+    text: _g('badgeText'+i)
+  }));
+  const data = {
+    name:         _g('hostName'),
+    title:        _g('hostTitle'),
+    bio:          _g('hostBio'),
+    whatsapp:     _g('hostWhatsApp'),
+    rating:       _g('hostRating'),
+    response:     _g('hostResponse'),
+    since:        _g('hostSince'),
+    responseTime: _g('hostResponseTime'),
+    photo:        _g('hostPhotoUrl'),
+    badges
+  };
+  if (firebaseReady) {
+    await db.collection("settings").doc("hostCard").set(data);
+  } else {
+    localStorage.setItem("ah_hostCard", JSON.stringify(data));
+  }
+  const msg = document.getElementById('hostSaveMsg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+}
+
+
+function viewIdLightbox(url) {
+  document.getElementById('idLightboxImg').src = url;
+  document.getElementById('idLightbox').classList.add('open');
+}
+
+async function updateBookingStatus(id, status) {
+  if (firebaseReady) {
+    const bookingRef  = db.collection("bookings").doc(id);
+    const bookingSnap = await bookingRef.get();
+    const aptId       = bookingSnap.exists ? bookingSnap.data().aptId : null;
+
+    const batch = db.batch();
+    batch.update(bookingRef, { status });
+    if (aptId) {
+      const listingRef = db.collection("listings").doc(aptId);
+      if (status === 'cancelled') {
+        batch.update(listingRef, { available: true,  status: 'available' });
+      } else if (status === 'confirmed') {
+        batch.update(listingRef, { available: false, status: 'booked' });
+      }
+    }
+    await batch.commit();
+  } else {
+    const list = JSON.parse(localStorage.getItem("ah_bookings") || "[]");
+    const i = list.findIndex(x => x.id === id);
+    if (i > -1) list[i].status = status;
+    localStorage.setItem("ah_bookings", JSON.stringify(list));
+  }
+  loadAdminData();
+}
+
+async function deleteBooking(id) {
+  if (!confirm('Permanently delete this booking? This cannot be undone.')) return;
+  if (!firebaseReady) { alert('Firebase not connected.'); return; }
+
+  const bookingRef  = db.collection('bookings').doc(id);
+  const bookingSnap = await bookingRef.get();
+  if (!bookingSnap.exists) { alert('Booking not found.'); return; }
+
+  const { aptId, status } = bookingSnap.data();
+  const batch = db.batch();
+
+  batch.delete(bookingRef);
+
+  if (aptId) {
+    batch.delete(db.collection('listings').doc(aptId).collection('booked_ranges').doc(id));
+    if (status === 'confirmed') {
+      batch.update(db.collection('listings').doc(aptId), { available: true, status: 'available' });
+    }
+  }
+
+  await batch.commit();
+
+  _allBookings = _allBookings.filter(b => b.id !== id);
+  const filtered = _allBookings.filter(b => _bookingMatchesFilter(b, _bookingFilter));
+  renderBookings(filtered, 'allBookings');
+}
+
+function updateHostPreview() {
+  const _gv = (id, fb) => { const el = document.getElementById(id); return el ? (el.value || fb) : fb; };
+  const name     = _gv('hostName', 'Accent Homes');
+  const title    = _gv('hostTitle', 'Property Manager · Asaba');
+  const rating   = _gv('hostRating', '4.9');
+  const response = _gv('hostResponse', '100%');
+  const since    = _gv('hostSince', '2025');
+  const rt       = _gv('hostResponseTime', 'Usually responds within 1 hour');
+  const bio      = _gv('hostBio', '');
+  const wa       = _gv('hostWhatsApp', '');
+
+  const el = (id) => document.getElementById(id);
+  if (el('previewName'))         el('previewName').textContent  = name;
+  if (el('previewTitle'))        el('previewTitle').textContent = title;
+  if (el('previewRating'))       el('previewRating').textContent = rating.includes('★') ? rating : rating + '★';
+  if (el('previewResponse'))     el('previewResponse').textContent = response;
+  if (el('previewSince'))        el('previewSince').textContent = since;
+  if (el('previewResponseTime')) el('previewResponseTime').textContent = rt;
+
+  // Bio
+  const biow = el('previewBioWrap');
+  if (biow) { biow.textContent = bio; biow.style.display = bio ? 'block' : 'none'; }
+
+  // WhatsApp
+  const waw = el('previewWaWrap');
+  const wal = el('previewWaLink');
+  if (waw && wal) { wal.textContent = wa || ''; waw.style.display = wa ? 'flex' : 'none'; }
+
+  // Badges
+  const badgesEl = el('previewBadges');
+  if (badgesEl) {
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      const cb  = el('badge' + i);
+      const txt = el('badgeText' + i);
+      if (cb && cb.checked && txt && txt.value.trim())
+        html += `<span class="host-badge-chip">${txt.value.trim()}</span>`;
+    }
+    badgesEl.innerHTML = html;
+    badgesEl.style.display = html ? 'flex' : 'none';
+  }
+
+  // Avatar initials
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const av  = el('previewAvatar');
+  const hav = el('hostAvatarPreview');
+  const photoUrl = el('hostPhotoUrl') ? el('hostPhotoUrl').value : '';
+  if (!photoUrl) {
+    if (av)  av.textContent  = initials;
+    if (hav) hav.textContent = initials;
+  }
+}
+
+
+// ============================================================
+// GUESTS PANEL
+// ============================================================
+async function loadGuests() {
+  const listEl  = document.getElementById('guestsList');
+  listEl.innerHTML = '<div class="empty-state">Loading guests…</div>';
+
+  let profiles  = [];
+  let bookings  = [];
+
+  try {
+    if (firebaseReady) {
+      // Load guest profiles — try ordered, fall back to unordered if no index
+      let snap;
+      try {
+        snap = await db.collection('guestProfiles').orderBy('createdAt','desc').get();
+      } catch(indexErr) {
+        snap = await db.collection('guestProfiles').get();
+      }
+      profiles = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+
+      // Load all bookings to count per guest
+      const bSnap = await db.collection('bookings').get();
+      bookings    = bSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+    } else {
+      profiles = JSON.parse(localStorage.getItem('ah_guestProfiles') || '[]');
+      bookings = JSON.parse(localStorage.getItem('ah_bookings') || '[]');
+    }
+  } catch(e) {
+    listEl.innerHTML = `<div class="empty-state">Could not load guests.<br><small style="color:var(--red)">${e.message}</small><br><small>Check Firestore security rules allow admin reads on guestProfiles.</small></div>`;
+    return;
+  }
+
+  // Update stats
+  const now       = new Date();
+  const thisMonth = profiles.filter(p => {
+    if (!p.createdAt) return false;
+    const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).length;
+
+  const totalEl = document.getElementById('gTotalAccounts');
+  const bTotEl  = document.getElementById('gTotalBookings');
+  const mTotEl  = document.getElementById('gThisMonth');
+  if(totalEl) totalEl.textContent = profiles.length;
+  if(bTotEl)  bTotEl.textContent  = bookings.length;
+  if(mTotEl)  mTotEl.textContent  = thisMonth;
+
+  if (!profiles.length) {
+    listEl.innerHTML = '<div class="guest-empty">No registered guests yet. Guests who create accounts on the public site will appear here.</div>';
+    return;
+  }
+
+  // Build guest list
+  listEl.innerHTML = profiles.map(p => {
+    const guestBookings = bookings.filter(b => b.email === p.email || b.guestUid === p.id);
+    const initials = (p.name||p.email||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const joined = p.createdAt
+      ? (p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt)).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})
+      : '—';
+
+    return `
+    <div class="guest-item">
+      <div class="guest-ava">
+        ${p.photoURL
+          ? `<img src="${esc(p.photoURL)}" style="width:100%;height:100%;object-fit:cover;">`
+          : esc(initials)}
+      </div>
+      <div class="guest-info">
+        <div class="guest-name">${esc(p.name||'—')}</div>
+        <div class="guest-email">${esc(p.email||'—')}</div>
+        <div class="guest-phone">${esc(p.phone||'')}</div>
+      </div>
+      <div class="guest-meta">
+        <div class="guest-bookings-count">${guestBookings.length} booking${guestBookings.length!==1?'s':''}</div>
+        <div class="guest-joined">Joined ${esc(joined)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// VISITOR / IP LOGS
+// ============================================================
+async function loadIpLogs() {
+  const tbody = document.getElementById('ipLogsBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Loading…</td></tr>';
+
+  if (!firebaseReady) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Firebase required to view visitor logs.</td></tr>';
+    return;
+  }
+
+  let logs = [];
+  try {
+    const snap = await db.collection('ipLogs').orderBy('timestamp','desc').limit(500).get();
+    logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Could not load logs. Check Firestore rules.</td></tr>';
+    return;
+  }
+
+  const now   = new Date();
+  const today = logs.filter(l => {
+    if (!l.timestamp) return false;
+    const d = l.timestamp.toDate ? l.timestamp.toDate() : new Date(l.timestamp);
+    return d.toDateString() === now.toDateString();
+  }).length;
+  const uniqueIps = new Set(logs.map(l => l.ip).filter(Boolean)).size;
+
+  const el = id => document.getElementById(id);
+  if (el('ipTotalVisits')) el('ipTotalVisits').textContent = logs.length;
+  if (el('ipUniqueIps'))   el('ipUniqueIps').textContent   = uniqueIps;
+  if (el('ipToday'))       el('ipToday').textContent        = today;
+
+  if (!logs.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No visitor logs yet. They will appear here once someone visits the public site.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = logs.map((l, i) => {
+    const ts = l.timestamp
+      ? (l.timestamp.toDate ? l.timestamp.toDate() : new Date(l.timestamp))
+          .toLocaleString('en-NG', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+      : '—';
+    const ua  = l.userAgent || '—';
+    const browser = ua.includes('Chrome') && !ua.includes('Edg') ? '<i class="fa-brands fa-chrome"></i> Chrome'
+                  : ua.includes('Firefox') ? '<i class="fa-brands fa-firefox-browser"></i> Firefox'
+                  : ua.includes('Safari') && !ua.includes('Chrome') ? '<i class="fa-brands fa-safari"></i> Safari'
+                  : ua.includes('Edg') ? '<i class="fa-brands fa-edge"></i> Edge'
+                  : ua.includes('OPR') || ua.includes('Opera') ? '<i class="fa-brands fa-opera"></i> Opera'
+                  : '<i class="fa-solid fa-display"></i> Other';
+    const device = /Mobi|Android/i.test(ua) ? '<i class="fa-solid fa-mobile-screen"></i> Mobile' : '<i class="fa-solid fa-laptop"></i> Desktop';
+    const ref = l.referrer && l.referrer !== 'direct' ? l.referrer : '<span style="color:var(--muted)">direct</span>';
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.72rem;">${i + 1}</td>
+      <td><code style="font-size:0.8rem;background:var(--off-white);padding:2px 6px;border-radius:4px;">${l.ip || '—'}</code></td>
+      <td style="font-size:0.78rem;white-space:nowrap;">${ts}</td>
+      <td style="font-size:0.78rem;">${browser} · ${device}</td>
+      <td style="font-size:0.75rem;color:var(--ash-lt);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ref}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function clearIpLogs() {
+  if (!firebaseReady) return;
+  if (!confirm('Delete all visitor logs? This cannot be undone.')) return;
+  try {
+    const snap = await db.collection('ipLogs').limit(500).get();
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    document.getElementById('ipLogsBody').innerHTML = '<tr><td colspan="5" class="empty-state">All logs cleared.</td></tr>';
+    ['ipTotalVisits','ipUniqueIps','ipToday'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '0'; });
+  } catch(e) { alert('Clear failed: ' + e.message); }
+}
+
+// ── INIT ──
+initFirebase();
+</script>
+
+<!-- ID Lightbox -->
+<div class="id-lightbox" id="idLightbox" onclick="this.classList.remove('open')">
+  <button class="id-lb-close" onclick="document.getElementById('idLightbox').classList.remove('open')">✕</button>
+  <img id="idLightboxImg" src="" alt="Guest ID">
+</div>
+
+<!-- TESTIMONIAL MODAL -->
+<div class="modal-overlay" id="testimonialModal" onclick="if(event.target===this)closeTestimonialModal()">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h3 id="testimonialModalTitle">Add Guest Review</h3>
+      <button class="modal-close" onclick="closeTestimonialModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="testimonialEditId">
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Guest Name</label>
+          <input type="text" id="testimonialName" placeholder="e.g. Chidi Okafor">
+        </div>
+        <div class="modal-form-group">
+          <label>Initials (2 letters)</label>
+          <input type="text" id="testimonialInitials" placeholder="e.g. CO" maxlength="2" style="text-transform:uppercase">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Role / Label</label>
+          <input type="text" id="testimonialRole" placeholder="e.g. Business Traveller">
+        </div>
+        <div class="modal-form-group">
+          <label>Star Rating</label>
+          <select id="testimonialRating">
+            <option value="5">★★★★★ (5 stars)</option>
+            <option value="4">★★★★☆ (4 stars)</option>
+            <option value="3">★★★☆☆ (3 stars)</option>
+            <option value="2">★★☆☆☆ (2 stars)</option>
+            <option value="1">★☆☆☆☆ (1 star)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label>Review Text</label>
+        <textarea id="testimonialText" rows="4" placeholder="The guest's review…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeTestimonialModal()">Cancel</button>
+      <button class="modal-save" onclick="saveTestimonial()">Save Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEIGHBOURHOOD PLACE MODAL -->
+<div class="modal-overlay" id="placeModal" onclick="if(event.target===this)closePlaceModal()">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3 id="placeModalTitle">Add Neighbourhood Place</h3>
+      <button class="modal-close" onclick="closePlaceModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="placeEditId">
+      <div class="modal-form-row">
+        <div class="modal-form-group" style="flex:2">
+          <label>Place Name</label>
+          <input type="text" id="placeName" placeholder="e.g. Yellow Chilli Restaurant">
+        </div>
+        <div class="modal-form-group" style="flex:1">
+          <label>Category</label>
+          <select id="placeCat">
+            <option value="dining">Dining & Drinks</option>
+            <option value="shopping">Shopping & Errands</option>
+            <option value="fitness">Fitness & Wellness</option>
+            <option value="health">Health & Medical</option>
+            <option value="transport">Transport & Services</option>
+            <option value="leisure">Leisure & Entertainment</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Distance</label>
+          <input type="text" id="placeDistance" placeholder="e.g. ~5 mins drive">
+        </div>
+        <div class="modal-form-group">
+          <label>Opening Hours</label>
+          <input type="text" id="placeHours" placeholder="e.g. 7am – 10pm daily">
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label>Short Description</label>
+        <textarea id="placeDesc" rows="2" placeholder="e.g. Upscale Nigerian & continental cuisine."></textarea>
+      </div>
+      <div class="modal-form-group">
+        <label>Place Photo</label>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+          <img id="placePhotoPreview" src="" style="display:none;width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" alt="preview">
+          <div>
+            <button type="button" class="host-upload-btn" onclick="document.getElementById('placePhotoInput').click()">
+              <i class="fa-solid fa-camera"></i> Upload Photo
+            </button>
+            <input type="file" id="placePhotoInput" accept="image/*" style="display:none" onchange="uploadPlacePhoto(this.files[0])">
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;">Or paste a URL below</div>
+          </div>
+        </div>
+        <input type="text" id="placePhotoUrl" placeholder="https://... (optional image URL)">
+      </div>
+      <div class="modal-footer">
+        <button class="modal-cancel" onclick="closePlaceModal()">Cancel</button>
+        <button class="modal-save" onclick="savePlace()">Save Place</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ADMIN DARK MODE ──────────────────────────────────────────
+function _applyAdminTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('adminThemeBtn');
+  if (btn) btn.textContent = theme === 'dark' ? '☽ Dark mode' : '☀ Light mode';
+  localStorage.setItem('ah-theme', theme);
+}
+function toggleAdminTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  _applyAdminTheme(cur === 'dark' ? 'light' : 'dark');
+}
+(function() {
+  const stored = localStorage.getItem('ah-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  _applyAdminTheme(stored || (prefersDark ? 'dark' : 'light'));
+})();
+</script>
+</body>
+</html>

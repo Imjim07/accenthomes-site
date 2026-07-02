@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv \"/Users/yeh/Desktop/cent/accent-admin .html\" \"/Users/yeh/Desktop/cent/accent-admin.html\")",
+      "Bash(python3 -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(ls -la /Users/yeh/Desktop/cent/ && ls /Users/yeh/Desktop/ 2>/dev/null | head -20)",
+      "Read(//Users/yeh/Desktop/**)",
+      "Bash(node --check /Users/yeh/Desktop/cent/functions/index.js)",
+      "Bash(openssl rand *)",
+      "Bash(npm install *)"
+    ],
+    "additionalDirectories": [
+      "/Users/yeh/Desktop/cent"
+    ]
+  }
+}

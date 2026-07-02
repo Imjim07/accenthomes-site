@@ -1,0 +1,6 @@
+functions/.env
+.env
+node_modules/
+functions/node_modules/
+.runtimeconfig.json
+*-service-account.json

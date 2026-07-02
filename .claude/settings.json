@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(grep -n \"background:#[0-9a-f]\\\\{3,6\\\\}\\\\|background:rgba\\(0\\\\|background:rgba\\(20\\\\|background:rgba\\(14\\\\|background:rgba\\(13\\\\|background:linear-gradient.*dark\\\\|background:linear-gradient.*1a1\\\\|background:linear-gradient.*0d0\\\\|background:linear-gradient.*141\\\\|background:#0d\\\\|background:#14\\\\|background:#1a\\\\|background:#0e\\\\|background:#11\\\\|background:#13\\\\|background:#2d\\\\|background:#1e\\\\|background:#12\" /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Bash(open /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Read(//Users/yeh/Downloads/**)",
+      "Bash(grep -n \"nav {$\\\\|#nav\\\\b\\\\|\\\\.nav-\\\\|nav-inner\\\\|nav-links\\\\|nav-logo\\\\|nav-right\\\\|nav-left\\\\|nav-wrap\" /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Bash(grep -n \"apt-overlay\\\\|mob-nav {$\\\\|mob-nav{\" /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Bash(grep -v \"^[0-9]*:.*//\\\\|^[0-9]*:.*\\\\`\")",
+      "Bash(git -C /Users/yeh/Desktop/cent status)",
+      "Bash(node -e \"require\\('./functions/index.js'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"sharp: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_900,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"blurred: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,c_fill,e_blur:600,q_20,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_pad,b_blurred:600:0,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_pad,b_auto:predominant,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_pad,b_blurred,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"border: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_pad,b_auto:border,q_auto,f_auto/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_pad,b_auto:predominant,q_auto,f_auto/ecc45849-f75c-495b-871b-a1640720397c_xbizfr\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,h_900,c_fill,g_auto,q_auto,f_auto/ecc45849-f75c-495b-871b-a1640720397c_xbizfr\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_800,q_auto,f_auto/accent-homes/gallery/ervx9kmlgsu2z8cubjer\")",
+      "Bash(awk -F: '{print NR\". line \"$2\": \"$3}')",
+      "Bash(awk 'NR>=2750 && NR<=2800 && /@media/' /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/w_1600,q_auto,f_auto/ecc45849-f75c-495b-871b-a1640720397c_xbizfr\")",
+      "Bash(awk '/^@media\\\\\\(max-width:767px\\\\\\)/,/^}/' /Users/yeh/Desktop/cent/accent-main/index.html)",
+      "Bash(curl -s -o /dev/null -w \"desktop: %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_1920,h_1080,q_auto,f_auto/v1782551560/ecc45849-f75c-495b-871b-a1640720397c_xbizfr.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"mobile:  %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_800,h_1200,q_auto,f_auto/v1782551560/ecc45849-f75c-495b-871b-a1640720397c_xbizfr.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"desktop: %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_1920,h_1080,q_auto,f_auto/v1782549999/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"mobile:  %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_800,h_1200,q_auto,f_auto/v1782549999/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{size_download}b\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_1600,h_2400,q_auto,f_auto/v1782549999/WhatsApp_Image_2026-04-22_at_14.15.36_lksd1y.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/v1782735716/IMG_2326_et3xcv.png\")",
+      "Bash(curl -s -o /dev/null -w \"favicon 64px: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_64,h_64,c_pad,b_2B2B2B,q_auto,f_png/v1782735716/IMG_2326_et3xcv.png\")",
+      "Bash(curl -s -o /dev/null -w \"footer logo: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_200,q_auto,f_auto/v1782735716/IMG_2326_et3xcv.png\")",
+      "Bash(curl -s -o /dev/null -w \"favicon 64px: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_64,h_64,c_pad,b_rgb:2B2B2B,q_auto,f_png/v1782735716/IMG_2326_et3xcv.png\")",
+      "Bash(curl -s -o /dev/null -w \"apple-touch: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_180,h_180,c_pad,b_rgb:2B2B2B,q_auto,f_png/v1782735716/IMG_2326_et3xcv.png\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/v1782736548/accent_favicon_nm8vnm.png\")"
+    ],
+    "additionalDirectories": [
+      "/Users/yeh/Downloads"
+    ]
+  }
+}

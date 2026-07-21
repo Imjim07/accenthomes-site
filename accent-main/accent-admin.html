@@ -932,7 +932,7 @@ input, textarea, select { font-family: var(--font-body); }
           <h3>Bookings</h3>
           <div style="display:flex;gap:8px">
             <button class="add-btn" onclick="openManualBooking()">
-              <i class="fa-solid fa-plus"></i> Manual Booking
+              <i class="fa-solid fa-plus"></i> Recover Booking
             </button>
             <button class="add-btn" style="background:var(--off-white);color:var(--ash);border:1px solid var(--border);" onclick="exportBookingsCSV()">
               <i class="fa-solid fa-download"></i> Export CSV
@@ -1284,11 +1284,11 @@ input, textarea, select { font-family: var(--font-body); }
 <div class="modal-overlay" id="manualBookingModal" style="display:none">
   <div class="modal" style="max-width:560px">
     <div class="modal-header">
-      <h3>Create Manual Booking</h3>
+      <h3>Recover Booking</h3>
       <button class="modal-close" onclick="closeManualBooking()">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;background:#FFF8F0;border:1px solid #F2D9B8;border-radius:4px;padding:10px 14px">Use this for bookings where payment was confirmed outside the normal flow (e.g. Paystack reference exists but booking wasn't saved).</p>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;background:#FFF8F0;border:1px solid #F2D9B8;border-radius:4px;padding:10px 14px">Use this to recover a booking where the guest's Paystack payment succeeded but the booking was never saved — e.g. a network failure after payment. The Paystack reference is verified server-side; the total is read from Paystack, not entered here.</p>
       <div class="modal-form-row">
         <div class="modal-form-group">
           <label>Guest Name *</label>
@@ -1324,24 +1324,28 @@ input, textarea, select { font-family: var(--font-body); }
           <label>Guests</label>
           <input type="number" id="mb_guests" value="1" min="1" max="10">
         </div>
-        <div class="modal-form-group">
-          <label>Total Paid (₦) *</label>
-          <input type="number" id="mb_total" placeholder="e.g. 350000">
-        </div>
       </div>
       <div class="modal-form-group">
         <label>Paystack Reference *</label>
         <input type="text" id="mb_ref" placeholder="e.g. AH-1780246465533">
       </div>
       <div class="modal-form-group">
-        <label>Notes (optional)</label>
-        <input type="text" id="mb_notes" placeholder="e.g. Manually created — payment verified on Paystack dashboard">
+        <label>Reason for backfill <span style="color:var(--red)">*</span></label>
+        <textarea id="mb_admin_notes" rows="3" required placeholder="e.g. Guest paid but confirmation flow failed, contacted via WhatsApp" style="resize:vertical;width:100%"></textarea>
+        <span style="font-size:0.75rem;color:var(--muted);margin-top:4px;display:block">Describe why this booking is being recovered. Minimum 10 characters.</span>
+      </div>
+      <div class="modal-form-group" style="margin-top:12px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-weight:400">
+          <input type="checkbox" id="mb_send_email" style="margin-top:3px;flex-shrink:0">
+          <span>Send confirmation email to guest</span>
+        </label>
+        <span style="font-size:0.75rem;color:var(--muted);margin-top:4px;display:block">Check this if the guest is expecting a confirmation email. Leave unchecked if you've already confirmed with them directly (e.g. via WhatsApp or phone).</span>
       </div>
       <p id="mb_err" style="color:var(--red);font-size:0.82rem;display:none;margin-top:8px"></p>
     </div>
     <div class="modal-footer">
       <button class="modal-cancel" onclick="closeManualBooking()">Cancel</button>
-      <button class="modal-save" id="mb_saveBtn" onclick="saveManualBooking()">Create Booking</button>
+      <button class="modal-save" id="mb_saveBtn" onclick="saveManualBooking()">Recover Booking</button>
     </div>
   </div>
 </div>
@@ -1516,6 +1520,8 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "681909366596",
   appId:             "1:681909366596:web:e995fd9b7eaa1e3e7ab111"
 };
+
+const FUNCTIONS_BASE_URL = 'https://us-central1-' + FIREBASE_CONFIG.projectId + '.cloudfunctions.net';
 
 // CLOUDINARY — Free image hosting (cloudinary.com)
 const CLOUDINARY_CLOUD = "df5uashml";
@@ -1791,11 +1797,11 @@ async function openManualBooking() {
     listings.map(l => `<option value="${l.id}" data-name="${l.name}" data-loc="${l.location||''}">${l.name}</option>`).join('');
 
   // Clear fields
-  ['mb_name','mb_email','mb_phone','mb_checkin','mb_checkout','mb_ref','mb_notes'].forEach(id => {
+  ['mb_name','mb_email','mb_phone','mb_checkin','mb_checkout','mb_ref','mb_admin_notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('mb_guests').value = '1';
-  document.getElementById('mb_total').value  = '';
+  document.getElementById('mb_send_email').checked = false;
   const err = document.getElementById('mb_err');
   if (err) err.style.display = 'none';
 
@@ -1813,81 +1819,60 @@ async function saveManualBooking() {
   const show = msg => { err.textContent = msg; err.style.display = 'block'; };
   hide();
 
-  const name    = document.getElementById('mb_name').value.trim();
-  const email   = document.getElementById('mb_email').value.trim();
-  const phone   = document.getElementById('mb_phone').value.trim();
-  const aptSel  = document.getElementById('mb_apt');
-  const aptId   = aptSel.value;
-  const aptName = aptSel.selectedOptions[0]?.dataset.name || '';
-  const aptLoc  = aptSel.selectedOptions[0]?.dataset.loc  || '';
-  const checkIn = document.getElementById('mb_checkin').value;
-  const checkOut= document.getElementById('mb_checkout').value;
-  const guests  = Number(document.getElementById('mb_guests').value) || 1;
-  const total   = Number(document.getElementById('mb_total').value)  || 0;
-  const ref     = document.getElementById('mb_ref').value.trim();
-  const notes   = document.getElementById('mb_notes').value.trim();
+  const name                  = document.getElementById('mb_name').value.trim();
+  const email                 = document.getElementById('mb_email').value.trim();
+  const phone                 = document.getElementById('mb_phone').value.trim();
+  const aptSel                = document.getElementById('mb_apt');
+  const aptId                 = aptSel.value;
+  const aptName               = aptSel.selectedOptions[0]?.dataset.name || '';
+  const aptLoc                = aptSel.selectedOptions[0]?.dataset.loc  || '';
+  const checkIn               = document.getElementById('mb_checkin').value;
+  const checkOut              = document.getElementById('mb_checkout').value;
+  const guests                = Number(document.getElementById('mb_guests').value) || 1;
+  const ref                   = document.getElementById('mb_ref').value.trim();
+  const adminBackfillNotes    = document.getElementById('mb_admin_notes').value.trim();
+  const sendConfirmationEmail = document.getElementById('mb_send_email').checked;
 
-  if (!name)     return show('Guest name is required.');
-  if (!email || !email.includes('@')) return show('Valid guest email is required.');
-  if (!aptId)    return show('Please select an apartment.');
-  if (!checkIn)  return show('Check-in date is required.');
-  if (!checkOut) return show('Check-out date is required.');
-  if (checkOut <= checkIn) return show('Check-out must be after check-in.');
-  if (total <= 0) return show('Total paid must be greater than 0.');
-  if (!ref)      return show('Paystack reference is required.');
-
-  const nights = Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000);
+  if (!name)                                   return show('Guest name is required.');
+  if (!email || !email.includes('@'))           return show('Valid guest email is required.');
+  if (!aptId)                                   return show('Please select an apartment.');
+  if (!checkIn)                                 return show('Check-in date is required.');
+  if (!checkOut)                                return show('Check-out date is required.');
+  if (new Date(checkOut) <= new Date(checkIn))  return show('Check-out must be after check-in.');
+  if (!ref)                                     return show('Paystack reference is required.');
+  if (adminBackfillNotes.length < 10)           return show('Please provide a reason for this backfill (at least 10 characters).');
 
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = 'Recovering…';
 
   try {
-    const batch = db.batch();
-
-    // Write booking
-    const bookingRef = db.collection('bookings').doc();
-    batch.set(bookingRef, {
-      aptId,
-      aptName,
-      location:         aptLoc,
-      checkIn,
-      checkOut,
-      guests,
-      nights,
-      total,
-      guestName:        name,
-      guestEmail:       email,
-      guestEmail_canon: email.toLowerCase(),
-      phone,
-      paystackRef:      ref,
-      status:           'confirmed',
-      isGuest:          false,
-      guestUid:         null,
-      notes:            notes || 'Manually created by admin',
-      createdAt:        firebase.firestore.FieldValue.serverTimestamp()
+    const token    = await auth.currentUser.getIdToken();
+    const response = await fetch(FUNCTIONS_BASE_URL + '/adminCreateBooking', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        aptId, aptName, location: aptLoc, checkIn, checkOut,
+        guests, guestName: name, guestEmail: email, phone,
+        paystackRef: ref,
+        adminBackfillNotes,
+        sendConfirmationEmail
+      })
     });
-
-    // Mark listing as booked
-    batch.update(db.collection('listings').doc(aptId), {
-      status:    'booked',
-      available: false
-    });
-
-    await batch.commit();
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to recover booking.');
 
     closeManualBooking();
-    // Reload bookings panel
     const updatedBookings = await getBookings();
     _allBookings = updatedBookings;
     _updateRevenue(updatedBookings);
     const filtered = updatedBookings.filter(b => _bookingMatchesFilter(b, _bookingFilter));
     renderBookings(filtered, 'allBookings');
-    alert(`✅ Booking created for ${name}. Listing marked as booked.`);
+    alert(`✅ Booking recovered for ${name}. Listing marked as booked.${sendConfirmationEmail ? ' Confirmation email sent.' : ''}`);
   } catch (e) {
-    show('Failed to save booking: ' + e.message);
+    show('Failed to recover booking: ' + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Create Booking';
+    btn.textContent = 'Recover Booking';
   }
 }
 

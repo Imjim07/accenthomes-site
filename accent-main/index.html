@@ -1108,7 +1108,6 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
   width:100%; max-width:900px; max-height:92vh;
   overflow-y:auto; position:relative;
   box-shadow:0 40px 100px rgba(0,0,0,0.5);
-  animation:modalIn 0.35s cubic-bezier(0.4,0,0.2,1);
 }
 @keyframes modalIn {
   from { opacity:0; transform:scale(0.94) translateY(20px); }
@@ -6832,8 +6831,8 @@ async function openAptModal(id) {
   openCalListeners(id);
 
   // Open overlay
+  lockBodyScroll();
   document.getElementById('aptOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeApt() {
@@ -7081,28 +7080,6 @@ function updateCarouselUI(visible, pages) {
     d.classList.toggle('active', i === carouselIndex)
   );
 }
-
-// ── Touch swipe (manual navigation) ──────────────────────────
-(function() {
-  const wrapper = document.getElementById('carouselWrapper');
-  if (!wrapper) return;
-
-  let _txStart = 0, _tyStart = 0;
-  wrapper.addEventListener('touchstart', e => {
-    _txStart = e.touches[0].clientX;
-    _tyStart = e.touches[0].clientY;
-  }, { passive: true });
-
-  wrapper.addEventListener('touchend', e => {
-    if (_isDesktop()) return;
-    const dx = e.changedTouches[0].clientX - _txStart;
-    const dy = e.changedTouches[0].clientY - _tyStart;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44) {
-      if (dx < 0) carouselGoTo(carouselIndex + 1);
-      else        carouselGoTo(carouselIndex - 1);
-    }
-  }, { passive: true });
-})();
 
 // ── Scroll to section (for footer links) ─────────────────────
 function scrollToSection(id) {

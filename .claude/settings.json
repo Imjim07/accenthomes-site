@@ -34,7 +34,17 @@
       "Bash(curl -s -o /dev/null -w \"footer logo: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_200,q_auto,f_auto/v1782735716/IMG_2326_et3xcv.png\")",
       "Bash(curl -s -o /dev/null -w \"favicon 64px: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_64,h_64,c_pad,b_rgb:2B2B2B,q_auto,f_png/v1782735716/IMG_2326_et3xcv.png\")",
       "Bash(curl -s -o /dev/null -w \"apple-touch: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/w_180,h_180,c_pad,b_rgb:2B2B2B,q_auto,f_png/v1782735716/IMG_2326_et3xcv.png\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/v1782736548/accent_favicon_nm8vnm.png\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/v1782736548/accent_favicon_nm8vnm.png\")",
+      "Bash(python3 -c \"import base64; print\\(base64.b64decode\\('NDM5NTg5NjctZTdlNy00Y2EwLThiMzQtZjNjOTQ4ZmQyMjBhX2xhd2twbg=='\\).decode\\(\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"mobile:  %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_800,h_1200,q_auto,f_auto/43958967-e7e7-4ca0-8b34-f3c948fd220a_lawkpn\")",
+      "Bash(curl -s -o /dev/null -w \"desktop: %{http_code} %{size_download}b\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_1600,h_2400,q_auto,f_auto/43958967-e7e7-4ca0-8b34-f3c948fd220a_lawkpn\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_800,h_1200,q_auto,f_auto/v1783088386/43958967-e7e7-4cao-8b34-f3c948fd220a_lawkpn.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"mobile:  %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_800,h_1200,q_auto,f_auto/43958967-e7e7-4ca0-8b34-f3c948fd220a_lawkpn\")",
+      "Bash(curl -s -o /dev/null -w \"desktop: %{http_code}\\\\n\" \"https://res.cloudinary.com/df5uashml/image/upload/c_fill,g_auto,w_1600,h_2400,q_auto,f_auto/43958967-e7e7-4ca0-8b34-f3c948fd220a_lawkpn\")",
+      "Bash(node --check /Users/yeh/Desktop/cent/functions/index.js)",
+      "Bash(python3 -c \"import base64; print\\(base64.b64decode\\('dGFjY2VudDNfd216c2Fi' + '=='\\).decode\\(\\)\\)\")",
+      "Bash(<img\" | head -20)",
+      "Bash(grep \"img src\\\\|`<img\" | head -20)"
     ],
     "additionalDirectories": [
       "/Users/yeh/Downloads"

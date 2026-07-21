@@ -430,7 +430,7 @@ async function _sendBookingConfirmEmail(bookingId, data, nights, caution, resend
 // Returns:
 //   201 { success: true, bookingId }
 //
-exports.createBooking = functions.runWith({ secrets: [paystackSecret] }).https.onCall(async (data, context) => {
+exports.createBooking = functions.runWith({ secrets: [paystackSecret] }).https.onRequest(async (req, res) => {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(204).send('');
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed.' });
@@ -640,6 +640,268 @@ exports.createBooking = functions.runWith({ secrets: [paystackSecret] }).https.o
     .catch(e => functions.logger.error('Booking confirm email failed', { bookingId, err: e.message }));
 
   functions.logger.info('Booking created', { bookingId, aptId: b.aptId });
+  return res.status(201).json({ success: true, bookingId });
+});
+
+// ── adminCreateBooking ─────────────────────────────────────────────────────────
+//
+// POST /adminCreateBooking
+// Authorization: Bearer <firebase-admin-id-token>  (requires admin custom claim)
+// Body: { aptId, aptName, checkIn, checkOut, guestName, guestEmail,
+//         phone, guests, paystackRef, adminBackfillNotes,
+//         sendConfirmationEmail? }
+//
+// Backfills a confirmed booking for a guest whose Paystack payment succeeded but
+// whose booking was never written (e.g. network failure after the guest paid).
+// WhatsApp/cash paths are out of scope — Paystack references only.
+//
+// Amount mismatch: not rejected; if paid vs today's computed total differs by
+// more than 20%, amountWarning:true is written to admin_audit_log.
+// total = actual Paystack-verified amount (kobo ÷ 100).
+// computedTotalAtBackfill = today's listing price (audit only, never used).
+//
+// Confirmation email defaults to OFF. Set sendConfirmationEmail:true in the
+// request body to trigger it — logged in admin_audit_log as emailSent.
+//
+// Rejects:
+//   401 — missing / invalid / expired token
+//   403 — token valid but not admin
+//   400 — required fields absent, adminBackfillNotes < 10 chars, invalid dates
+//   404 — listing not found
+//   409 — listing already booked, or paystackRef already used
+//   402 — Paystack payment not successful
+//   500 — internal error
+// Returns:
+//   201 { success: true, bookingId }
+//
+exports.adminCreateBooking = functions.runWith({ secrets: [paystackSecret] }).https.onRequest(async (req, res) => {
+  setCors(res);
+  if (req.method === 'OPTIONS') return res.status(204).send('');
+  if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed.' });
+
+  const ip = hashIp(req);
+
+  // 1. Verify Firebase ID token and admin custom claim
+  const header = (req.headers.authorization || '').trim();
+  if (!header.startsWith('Bearer ')) {
+    await logRejected(ip, 'missing_token', null, 'adminCreateBooking');
+    return res.status(401).json({ error: 'Authentication required.' });
+  }
+  let decoded;
+  try {
+    decoded = await admin.auth().verifyIdToken(header.slice(7));
+  } catch (e) {
+    await logRejected(ip, 'invalid_token', null, 'adminCreateBooking');
+    return res.status(401).json({ error: 'Invalid or expired session. Please sign in again.' });
+  }
+  if (!decoded.admin) {
+    await logRejected(ip, 'not_admin', decoded.uid, 'adminCreateBooking');
+    return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+  }
+  const adminUid   = decoded.uid;
+  const adminEmail = decoded.email || null;
+
+  const b = req.body || {};
+
+  // 2. Required-field validation
+  const required = ['aptId', 'aptName', 'checkIn', 'checkOut', 'paystackRef', 'guestName', 'guestEmail', 'adminBackfillNotes'];
+  const missing  = required.filter(k => !b[k]);
+  if (missing.length) {
+    return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+  }
+  if (!b.guestEmail.includes('@')) {
+    return res.status(400).json({ error: 'Invalid email address.' });
+  }
+  if (b.adminBackfillNotes.trim().length < 10) {
+    return res.status(400).json({ error: 'Notes must be at least 10 characters. Describe the reason for this backfill.' });
+  }
+
+  // 3. Read listing + pre-transaction availability check
+  let listingData;
+  try {
+    const listingSnap = await db.collection('listings').doc(b.aptId).get();
+    if (!listingSnap.exists) {
+      return res.status(404).json({ error: 'Apartment not found.' });
+    }
+    listingData = listingSnap.data();
+  } catch (e) {
+    functions.logger.error('adminCreateBooking: listings read error', { aptId: b.aptId, err: e.message });
+    return res.status(500).json({ error: 'Could not verify apartment. Please try again.' });
+  }
+
+  if (listingData.available === false || listingData.status === 'booked') {
+    return res.status(409).json({
+      error: "This apartment is currently marked as booked. If you're backfilling a legitimate prior payment, please cancel the conflicting booking first or contact the guest to arrange different dates."
+    });
+  }
+
+  // 4. Date + guest count validation
+  const nights = Math.round(
+    (new Date(b.checkOut).getTime() - new Date(b.checkIn).getTime()) / 86400000
+  );
+  if (!Number.isFinite(nights) || nights < 1) {
+    return res.status(400).json({ error: 'Invalid check-in / check-out dates.' });
+  }
+  const guests    = Number(b.guests) || 1;
+  const maxGuests = Number(listingData.maxGuests || 10);
+  if (guests < 1 || guests > maxGuests) {
+    return res.status(400).json({ error: `Guest count must be between 1 and ${maxGuests}.` });
+  }
+
+  // 5. Compute today's price — for audit only, NOT used as total
+  const rent                    = Number(listingData.priceNight    || 0) * nights;
+  const cautionSmall            = Number(listingData.cautionDeposit || 0);
+  const cautionBig              = Number(listingData.cautionLarge   || cautionSmall);
+  const caution                 = guests > 5 ? cautionBig : cautionSmall;
+  const computedTotalAtBackfill = rent + caution;
+
+  // 6. Paystack ref deduplication
+  try {
+    const dupSnap = await db.collection('bookings')
+      .where('paystackRef', '==', b.paystackRef)
+      .limit(1)
+      .get();
+    if (!dupSnap.empty) {
+      await logRejected(ip, 'paystack_ref_reused', adminUid, 'adminCreateBooking');
+      return res.status(409).json({ error: 'This payment reference has already been used.' });
+    }
+  } catch (e) {
+    functions.logger.error('adminCreateBooking: paystackRef dedup error', { err: e.message });
+    return res.status(500).json({ error: 'Could not verify payment reference. Please try again.' });
+  }
+
+  // 7. Verify Paystack payment — status only, no amount enforcement
+  const paystackKey = paystackSecret.value();
+  if (!paystackKey) {
+    functions.logger.error('adminCreateBooking: paystackSecret not set');
+    return res.status(500).json({ error: 'Payment verification unavailable. Please contact support.' });
+  }
+  let paidAmount;
+  try {
+    const psRes  = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(b.paystackRef)}`,
+      { headers: { Authorization: `Bearer ${paystackKey}` } }
+    );
+    const psJson = await psRes.json();
+    if (!psRes.ok || psJson.data?.status !== 'success') {
+      await logRejected(ip, 'paystack_not_success', adminUid, 'adminCreateBooking');
+      return res.status(402).json({
+        error: 'Payment could not be verified. Ensure the Paystack reference is correct and the transaction is marked as successful.'
+      });
+    }
+    paidAmount = psJson.data.amount / 100;
+  } catch (e) {
+    functions.logger.error('adminCreateBooking: Paystack verify error', { err: e.message });
+    return res.status(500).json({ error: 'Payment verification error. Please try again or contact support.' });
+  }
+
+  // 8. Amount-warning check (> 20% delta — logged, not rejected)
+  let amountWarning = false;
+  let deltaPercent  = 0;
+  if (computedTotalAtBackfill > 0) {
+    deltaPercent  = Math.abs(paidAmount - computedTotalAtBackfill) / computedTotalAtBackfill * 100;
+    amountWarning = deltaPercent > 20;
+  }
+
+  // 9. Firestore transaction — overlap check + writes
+  const bookingRef  = db.collection('bookings').doc();
+  const listingRef  = db.collection('listings').doc(b.aptId);
+  const bookingData = {
+    aptId:                   b.aptId,
+    aptName:                 b.aptName,
+    location:                listingData.location || b.location || '',
+    checkIn:                 b.checkIn,
+    checkOut:                b.checkOut,
+    guests,
+    nights,
+    rent,
+    caution,
+    total:                   paidAmount,
+    computedTotalAtBackfill,
+    guestName:               b.guestName,
+    guestEmail:              b.guestEmail,
+    guestEmail_canon:        b.guestEmail.toLowerCase(),
+    phone:                   b.phone || '',
+    paystackRef:             b.paystackRef,
+    linkedUid:               null,
+    status:                  'confirmed',
+    adminBackfill:           true,
+    adminUid,
+    adminBackfillNotes:      b.adminBackfillNotes.trim(),
+    createdAt:               admin.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    await db.runTransaction(async (tx) => {
+      const listingSnap = await tx.get(listingRef);
+      if (!listingSnap.exists ||
+          listingSnap.data().available === false ||
+          listingSnap.data().status   === 'booked') {
+        const err = new Error('Apartment no longer available.');
+        err.code  = 'DOUBLE_BOOKING';
+        throw err;
+      }
+      const overlapQuery = db.collection('bookings')
+        .where('aptId',   '==', b.aptId)
+        .where('status',  '==', 'confirmed')
+        .where('checkIn', '<',  b.checkOut);
+      const overlapSnap = await tx.get(overlapQuery);
+      if (overlapSnap.docs.some(d => d.data().checkOut >= b.checkIn)) {
+        const err = new Error('Dates overlap with an existing booking.');
+        err.code  = 'DOUBLE_BOOKING';
+        throw err;
+      }
+      tx.set(bookingRef, bookingData);
+      tx.update(listingRef, { status: 'booked', available: false });
+      tx.set(
+        db.collection('listings').doc(b.aptId).collection('booked_ranges').doc(bookingRef.id),
+        { checkIn: b.checkIn, checkOut: b.checkOut }
+      );
+    });
+  } catch (e) {
+    if (e.code === 'DOUBLE_BOOKING') {
+      await logRejected(ip, 'admin_backfill_double_booking', adminUid, 'adminCreateBooking');
+      return res.status(409).json({
+        error: "This apartment is currently marked as booked. If you're backfilling a legitimate prior payment, please cancel the conflicting booking first or contact the guest to arrange different dates."
+      });
+    }
+    functions.logger.error('adminCreateBooking: transaction failed', {
+      paystackRef: b.paystackRef, err: e.message
+    });
+    return res.status(500).json({ error: 'Could not save booking. Please try again.' });
+  }
+
+  const bookingId = bookingRef.id;
+
+  // 10. Write admin_audit_log — fire-and-forget (Admin SDK bypasses rules)
+  const emailSent  = b.sendConfirmationEmail === true;
+  const auditEntry = {
+    action:                  'admin_create',
+    adminUid,
+    adminEmail,
+    bookingId,
+    paystackRef:             b.paystackRef,
+    aptId:                   b.aptId,
+    aptName:                 b.aptName,
+    guestEmail:              b.guestEmail.toLowerCase(),
+    paidAmount,
+    computedTotalAtBackfill,
+    deltaPercent:            Math.round(deltaPercent * 10) / 10,
+    emailSent,
+    ts:                      admin.firestore.FieldValue.serverTimestamp()
+  };
+  if (amountWarning) {
+    auditEntry.amountWarning = true;
+  }
+  db.collection('admin_audit_log').add(auditEntry)
+    .catch(e => functions.logger.error('adminCreateBooking: audit_log write failed', { err: e.message }));
+
+  // 11. Confirmation email — only if admin explicitly requested it
+  if (emailSent) {
+    _sendBookingConfirmEmail(bookingId, bookingData, nights, caution, process.env.RESEND_API_KEY)
+      .catch(e => functions.logger.error('adminCreateBooking: confirm email failed', { bookingId, err: e.message }));
+  }
+
+  functions.logger.info('Admin backfill booking created', { bookingId, aptId: b.aptId, adminUid, amountWarning, emailSent });
   return res.status(201).json({ success: true, bookingId });
 });
 

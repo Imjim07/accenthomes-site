@@ -214,6 +214,8 @@ Base unit: 4px
 - Reach out to Mr Joe for feedback session
 - Prepare a walkthrough script for the follow-up call
 
+- **Dark mode redesign:** update 200+ hardcoded component rules in [data-theme="dark"] to match new lilac/white/ash system. Includes .bento-card, .footer-col, .pay-modal, .apt-modal, .mobile-menu-inner, .contact-panel, and all other component-specific dark overrides.
+
 ---
 
 ## Constraints (Do Not Cross)
@@ -262,3 +264,6 @@ By end of Friday, July 30:
 - Reviews system rebuild — separate future work
 - Multi-language switching UI polish — existing i18n stays as-is
 - Individual admin accounts for Mr Joe and Ebere — separate follow-up work
+
+
+- **Dark mode visual consistency during Day 1-5:** dark mode will look visually mixed (new lilac accents on old bronze-era dark rules) until Day 6-7 completes the dark mode pass. This is a known temporary state, not a bug.

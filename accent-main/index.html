@@ -787,7 +787,7 @@ section { padding:100px 0; }
   font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase;
   padding:5px 12px; border-radius:20px; font-weight:600;
 }
-.badge-available { background:rgba(45,106,79,0.9); color:#fff; backdrop-filter:blur(4px); }
+.badge-available { background:var(--lilac-soft); color:var(--ink); }
 .badge-booked { background:rgba(156,110,166,0.9); color:#fff; backdrop-filter:blur(4px); }
 .badge-unavailable { background:rgba(61,61,61,0.7); color:#fff; backdrop-filter:blur(4px); }
 .card-body { padding:26px; }
@@ -1887,30 +1887,35 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 
 /* Booking summary */
 .booking-summary {
-  background: var(--ash-faint); border-radius: var(--radius);
-  padding: 18px; margin-bottom: 20px;
+  background: var(--surface-soft);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
   animation: summaryFadeIn 0.4s ease forwards;
 }
 @keyframes summaryFadeIn {
   from { opacity:0; transform:translateY(8px); }
   to   { opacity:1; transform:translateY(0); }
 }
+.bs-property-card { display:flex; align-items:center; gap:14px; margin-bottom:4px; }
+.bs-property-img {
+  width:88px; height:88px; object-fit:cover;
+  border-radius:var(--radius-sm); flex-shrink:0;
+  background:var(--surface-strong);
+}
+.bs-property-info { flex:1; min-width:0; }
+.bs-apt-name { font-size:17px; font-weight:600; color:var(--ink); margin-bottom:4px; line-height:1.3; }
+.bs-apt-loc { font-size:13px; color:var(--muted); line-height:1.4; }
+.bs-divider { height:1px; background:var(--hairline); margin:16px 0; }
+.bs-section-title { font-size:15px; font-weight:600; color:var(--ink); margin-bottom:10px; }
 .bs-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.875rem; color: var(--ash); padding: 4px 0;
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:6px 0; font-size:15px; color:var(--body);
 }
-.bs-row.total {
-  border-top: 1px solid rgba(61,61,61,0.12);
-  margin-top: 10px; padding-top: 12px;
-  font-weight: 700; font-size: 1rem;
-}
-.bs-row.total span:last-child {
-  font-family: var(--font-display); font-size: 1.3rem; color: var(--charcoal);
-}
-.bs-apt-name {
-  font-family: var(--font-display); font-size: 1.1rem;
-  color: var(--charcoal); margin-bottom: 12px; font-weight: 400;
-}
+.bs-row span:first-child { color:var(--body); }
+.bs-row span:last-child { color:var(--ink); font-weight:500; }
+.bs-row.total { margin-top:4px; font-size:16px; font-weight:600; }
+.bs-row.total span:last-child { font-weight:600; }
 
 /* Step nav buttons */
 .pay-step-nav {
@@ -2489,9 +2494,9 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 .pay-apt-loc { font-size:0.75rem; color:var(--ash-lt); margin-top:2px; }
 .pay-apt-price { font-family:var(--font-display); font-size:1.3rem; color:var(--bronze); }
 .pay-body { padding:28px; }
-.pay-fg { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
-.pay-fg label { font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--bronze); font-weight:600; }
-.pay-fg input { border:1.5px solid var(--ash-faint); border-radius:var(--radius); padding:11px 14px; font-size:0.9rem; outline:none; transition:all var(--transition); color:var(--charcoal); font-family:var(--font-body); }
+.pay-fg { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.pay-fg label { font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:2px; }
+.pay-fg input, .pay-fg select { border:1.5px solid var(--hairline); border-radius:var(--radius-sm); padding:14px 16px; font-size:16px; outline:none; transition:all var(--transition); color:var(--ink); font-family:var(--font-body); min-height:56px; background:var(--canvas); }
 .pay-fg input:focus { border-color:var(--bronze); box-shadow:0 0 0 3px rgba(156,110,166,0.08); }
 .pay-frow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .pay-summary { background:var(--ash-faint); border-radius:var(--radius); padding:18px; margin:16px 0 20px; }
@@ -2501,6 +2506,43 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 .pay-btn { width:100%; background:var(--bronze); color:var(--white); padding:14px; border-radius:var(--radius); font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; border:none; cursor:pointer; transition:all var(--transition); font-family:var(--font-body); box-shadow:0 4px 16px rgba(156,110,166,0.3); }
 .pay-btn:hover { background:var(--bronze-lt); transform:translateY(-1px); }
 .pay-btn:disabled { background:var(--ash-faint); color:var(--ash-lt); cursor:not-allowed; transform:none; box-shadow:none; }
+
+.pay-guests-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid var(--ash-faint);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  background: var(--canvas);
+  min-height: 56px;
+}
+.pay-guests-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--hairline);
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.pay-guests-btn:hover:not(:disabled) { border-color: var(--ink); }
+.pay-guests-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pay-guests-display {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
 .pay-err { color:var(--red); font-size:0.78rem; margin-top:8px; display:none; text-align:center; }
 
 /* DESKTOP NAV — reduced height/spacing (>960px only; mobile/tablet nav untouched) */
@@ -2731,10 +2773,10 @@ body.login-open {
   box-shadow:none !important; overflow:visible !important;
   transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.listing-card:hover { transform:translateY(-3px); }
+.listing-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-card); }
 
 .card-img-wrap {
-  position:relative; border-radius:var(--radius-lg);
+  position:relative; border-radius:14px;
   overflow:hidden; aspect-ratio:4/3; min-height:220px;
   background:var(--ash-faint); margin-bottom:10px;
 }
@@ -2749,15 +2791,15 @@ body.login-open {
 .card-heart:hover { background:#fff; transform:scale(1.1); }
 .card-heart.liked { color:#E31C5F; }
 
-.card-body { padding:0 !important; }
-.card-loc { font-size:0.72rem; color:var(--ash-lt); margin-bottom:3px; }
+.card-body { padding:12px 4px 0 !important; }
+.card-loc { font-size:14px; color:var(--ash-lt); margin-bottom:6px; }
 .card-name {
-  font-family:var(--font-display); font-size:1.05rem;
-  font-weight:400; color:var(--charcoal); margin-bottom:3px; line-height:1.2;
+  font-family:var(--font-body); font-size:17px;
+  font-weight:500; color:var(--charcoal); margin-bottom:4px; line-height:1.2;
 }
-.card-amen { font-size:0.72rem; color:var(--ash-lt); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.card-price-row { display:flex; align-items:baseline; gap:4px; }
-.card-price { font-family:var(--font-display); font-size:1rem; font-weight:500; color:var(--charcoal); }
+.card-amen { font-size:14px; color:var(--ash-lt); margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-price-row { display:flex; align-items:baseline; gap:4px; margin-top:4px; }
+.card-price { font-family:var(--font-body); font-size:16px; font-weight:500; color:var(--charcoal); }
 .card-price-u { font-size:0.72rem; color:var(--ash-lt); }
 
 /* ============================================================
@@ -3106,10 +3148,10 @@ body.login-open {
 .fa-moon { color: #6366F1; }
 
 /* Calendar check (check-in) */
-.fa-calendar-check { color: #3B82F6; }
+.fa-calendar-plus { color: #3B82F6; }
 
 /* Calendar xmark (check-out) */
-.fa-calendar-xmark { color: #EF4444; }
+.fa-calendar-minus { color: #EF4444; }
 
 /* Phone */
 .fa-phone { color: #25D366; }
@@ -3159,15 +3201,15 @@ body.login-open {
 /* Mobile nav — keep inherit so active/inactive states work */
 .mob-icon .fa-house,
 .mob-icon .fa-magnifying-glass,
-.mob-icon .fa-calendar-check,
+.mob-icon .fa-calendar-plus,
 .mob-icon .fa-user,
 .mob-icon .fa-building,
 .mob-icon .fa-comment-dots { color: inherit; }
 
 /* Booking summary label icons */
 .bs-row span[data-i18n-html] .fa-location-dot { color: #E84545; }
-.bs-row span[data-i18n-html] .fa-calendar-check { color: #3B82F6; }
-.bs-row span[data-i18n-html] .fa-calendar-xmark { color: #EF4444; }
+.bs-row span[data-i18n-html] .fa-calendar-plus { color: #3B82F6; }
+.bs-row span[data-i18n-html] .fa-calendar-minus { color: #EF4444; }
 .bs-row span[data-i18n-html] .fa-moon   { color: #6366F1; }
 .bs-row span[data-i18n-html] .fa-user   { color: #64748B; }
 .bs-row span[data-i18n-html] .fa-id-card { color: #8B5CF6; }
@@ -4328,16 +4370,14 @@ body.login-open {
           <div class="pay-fg"><label data-i18n="pay_lbl_checkin">Check-In</label><input type="date" id="pIn" onchange="calcPay()"></div>
           <div class="pay-fg"><label data-i18n="pay_lbl_checkout">Check-Out</label><input type="date" id="pOut" onchange="calcPay()"></div>
         </div>
-        <div class="pay-fg">
+        <div class="pay-fg pay-guests-fg">
           <label>Number of Guests</label>
-          <select id="pGuests" onchange="calcPay()" style="width:100%;padding:10px 12px;border:1px solid var(--ash-faint);border-radius:var(--radius);font-size:0.9rem;background:#fff;color:var(--charcoal);font-family:var(--font-body);">
-            <option value="1">1 Guest</option>
-            <option value="2">2 Guests</option>
-            <option value="3">3 Guests</option>
-            <option value="4">4 Guests</option>
-            <option value="5">5 Guests</option>
-            <option value="6">6 Guests</option>
-          </select>
+          <div class="pay-guests-stepper">
+            <button type="button" class="pay-guests-btn" id="pGuestsMinus" aria-label="Decrease guest count" onclick="pStepGuests(-1)">−</button>
+            <span class="pay-guests-display" id="pGuestsDisplay">1 Guest</span>
+            <button type="button" class="pay-guests-btn" id="pGuestsPlus" aria-label="Increase guest count" onclick="pStepGuests(1)">+</button>
+            <input type="hidden" id="pGuests" value="1">
+          </div>
         </div>
         <div class="pay-summary" id="paySummary" style="display:none">
           <div class="pay-row"><span id="pNightsLbl">Rent (0 nights)</span><span id="pRent">₦0</span></div>
@@ -4353,14 +4393,24 @@ body.login-open {
       <!-- STEP 2: Review & Pay -->
       <div class="pay-step-panel" id="pay-panel-2">
         <div class="booking-summary">
-          <div class="bs-apt-name" id="bsAptName">—</div>
-          <div class="bs-row"><span data-i18n-html="pay_bs_loc"><i class="fa-solid fa-location-dot"></i> Location</span><span id="bsLoc">—</span></div>
-          <div class="bs-row"><span data-i18n-html="pay_bs_in"><i class="fa-solid fa-calendar-check"></i> Check-In</span><span id="bsIn">—</span></div>
-          <div class="bs-row"><span data-i18n-html="pay_bs_out"><i class="fa-solid fa-calendar-xmark"></i> Check-Out</span><span id="bsOut">—</span></div>
-          <div class="bs-row"><span data-i18n-html="pay_bs_nights"><i class="fa-solid fa-moon"></i> Nights</span><span id="bsNights">—</span></div>
-          <div class="bs-row"><span data-i18n-html="pay_bs_guest"><i class="fa-solid fa-user"></i> Guest</span><span id="bsGuest">—</span></div>
-          <div class="bs-row"><span id="bsRentLbl">Rent</span><span id="bsRent">₦0</span></div>
+          <div class="bs-property-card">
+            <img class="bs-property-img" id="bsPropertyImg" alt="" onerror="this.style.display='none'">
+            <div class="bs-property-info">
+              <div class="bs-apt-name" id="bsAptName">—</div>
+              <div class="bs-apt-loc" id="bsLoc">—</div>
+            </div>
+          </div>
+          <div class="bs-divider"></div>
+          <div class="bs-section-title" data-i18n="pay_bs_trip">Trip details</div>
+          <div class="bs-row"><span data-i18n="pay_bs_in">Check-In</span><span id="bsIn">—</span></div>
+          <div class="bs-row"><span data-i18n="pay_bs_out">Check-Out</span><span id="bsOut">—</span></div>
+          <div class="bs-row"><span data-i18n="pay_bs_nights">Nights</span><span id="bsNights">—</span></div>
+          <div class="bs-row"><span data-i18n="pay_bs_guest">Guest</span><span id="bsGuest">—</span></div>
+          <div class="bs-divider"></div>
+          <div class="bs-section-title" data-i18n="pay_bs_price">Price details</div>
+          <div class="bs-row"><span id="bsRentBreakdown">₦0 × 0 nights</span><span id="bsRent">₦0</span></div>
           <div class="bs-row"><span data-i18n="pay_bs_caution">Caution (refundable)</span><span id="bsCaution">₦0</span></div>
+          <div class="bs-divider"></div>
           <div class="bs-row total"><span data-i18n="pay_bs_total">Total Due</span><span id="bsTotal">₦0</span></div>
         </div>
         <p style="font-size:0.75rem;color:var(--ash-lt);margin-bottom:16px;line-height:1.6;">
@@ -4476,11 +4526,20 @@ function initFB() {
 // DATA LAYER
 // ============================================================
 async function getListings() {
-  if (fbReady) {
-    const s = await db.collection("listings").orderBy("createdAt","desc").get();
-    return s.docs.map(d=>({id:d.id,...d.data()}));
+  if (!fbReady) {
+    return JSON.parse(localStorage.getItem("ah_listings")||"[]");
   }
-  return JSON.parse(localStorage.getItem("ah_listings")||"[]");
+
+  // First attempt
+  let snapshot = await db.collection("listings").orderBy("createdAt","desc").get();
+
+  // Retry once if empty (handles cold-load race with Firestore network readiness)
+  if (snapshot.empty) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    snapshot = await db.collection("listings").orderBy("createdAt","desc").get();
+  }
+
+  return snapshot.docs.map(d => ({id: d.id, ...d.data()}));
 }
 async function saveInquiry(data) {
   if (fbReady) { await db.collection("inquiries").add({...data, createdAt:firebase.firestore.FieldValue.serverTimestamp()}); return; }
@@ -4665,9 +4724,9 @@ async function loadListings(){
       </div>
       <!-- Card body — Airbnb style -->
       <div class="card-body">
-        <div class="card-loc"><i class="fa-solid fa-location-dot"></i> ${l.location||'Asaba GRA'}</div>
         <div class="card-name">${l.name}</div>
-        <div class="card-amen">${(l.amenities||[]).slice(0,3).map(a=>typeof a==='string'?a:(a.label||'')).filter(Boolean).join(' · ')}${l.bedrooms?' · '+l.bedrooms+' Bed':''}</div>
+        <div class="card-loc">${l.location||'Asaba GRA'}${l.bedrooms?' · '+l.bedrooms+' Bed':''}</div>
+        <div class="card-amen">${(l.amenities||[]).slice(0,3).map(a=>typeof a==='string'?a:(a.label||'')).filter(Boolean).join(' · ')}</div>
         <div class="card-price-row">
           <span class="card-price">₦${Number(l.priceNight||0).toLocaleString()}</span>
           <span class="card-price-u">${LANGS[_activeLang]?.card_per_night||'/ night'}</span>
@@ -4859,6 +4918,26 @@ function closePay(){
   currentAptData = null;
 }
 
+function pStepGuests(delta) {
+  const inp = document.getElementById('pGuests');
+  const display = document.getElementById('pGuestsDisplay');
+  const minus = document.getElementById('pGuestsMinus');
+  const plus = document.getElementById('pGuestsPlus');
+  if (!inp || !display) return;
+
+  const currentValue = Number(inp.value || 1);
+  const max = Number(currentAptData?.maxGuests || 6);
+  const newValue = Math.max(1, Math.min(max, currentValue + delta));
+
+  inp.value = newValue;
+  display.textContent = newValue + (newValue === 1 ? ' Guest' : ' Guests');
+
+  if (minus) minus.disabled = (newValue <= 1);
+  if (plus) plus.disabled = (newValue >= max);
+
+  if (typeof calcPay === 'function') calcPay();
+}
+
 function calcPay(){
   if(!currentAptData)return;
   const ci=document.getElementById("pIn").value;
@@ -5001,7 +5080,14 @@ async function loadTestimonials() {
 
 // ── GALLERY ───────────────────────────────────────────────────
 async function loadGallery() {
-  const photos = await getDynCollection("gallery");
+  let photos = await getDynCollection("gallery");
+
+  // Retry once if empty (handles cold-load race with Firestore network readiness)
+  if (!photos.length && fbReady) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    photos = await getDynCollection("gallery");
+  }
+
   if (!photos.length) {
     document.querySelector('.gallery-empty-msg').style.display = '';
     document.getElementById('gallery').style.display = '';
@@ -5178,6 +5264,14 @@ function populateReview() {
   const cautionBig   = Number(currentAptData.cautionLarge||cautionSmall);
   const caution = guests > 5 ? cautionBig : cautionSmall;
 
+  const _imgEl = document.getElementById('bsPropertyImg');
+  if (_imgEl) {
+    const toUrl = p => typeof p === 'string' ? p : (p && p.url ? p.url : '');
+    const _cover = (currentAptData.photos && currentAptData.photos.length)
+      ? toUrl(currentAptData.photos[0])
+      : (currentAptData.image || '');
+    _imgEl.src = _cover;
+  }
   document.getElementById('bsAptName').textContent = currentAptData.name;
   document.getElementById('bsLoc').textContent     = currentAptData.location||'Asaba';
   document.getElementById('bsIn').textContent      = ci;
@@ -5186,7 +5280,7 @@ function populateReview() {
   const _rNw = nights > 1 ? (_tR.pay_nights||'nights') : (_tR.pay_night||'night');
   document.getElementById('bsNights').textContent  = nights + ' ' + _rNw;
   document.getElementById('bsGuest').textContent   = document.getElementById('pName').value;
-  document.getElementById('bsRentLbl').textContent = (_tR.pay_rent||'Rent') + ' (' + nights + ' ' + _rNw + ')';
+  document.getElementById('bsRentBreakdown').textContent = '₦' + Number(currentAptData.priceNight||0).toLocaleString() + ' × ' + nights + ' ' + _rNw;
   document.getElementById('bsRent').textContent    = '₦' + rent.toLocaleString();
   document.getElementById('bsCaution').textContent = '₦' + caution.toLocaleString();
   document.getElementById('bsTotal').textContent   = '₦' + (rent+caution).toLocaleString();
@@ -5457,6 +5551,14 @@ function resetPayModal() {
   if (lgMsg) lgMsg.style.display = 'none';
   document.getElementById('paySummary').style.display = 'none';
   ['payErr1','payErr3','payErr4'].forEach(id => hideErr(id));
+  const gInp = document.getElementById('pGuests');
+  const gDisplay = document.getElementById('pGuestsDisplay');
+  const gMinus = document.getElementById('pGuestsMinus');
+  const gPlus = document.getElementById('pGuestsPlus');
+  if (gInp) gInp.value = '1';
+  if (gDisplay) gDisplay.textContent = '1 Guest';
+  if (gMinus) gMinus.disabled = true;
+  if (gPlus) gPlus.disabled = false;
 }
 
 function handlePayOverlay(e) {
@@ -5577,7 +5679,7 @@ function _setNavState(state) {
   const mni4 = document.getElementById('mni4');
   if (state === 'logged-in') {
     if (mni3) {
-      mni3.innerHTML = '<span class="mob-icon"><i class="fa-solid fa-calendar-check"></i></span><span>Bookings</span>';
+      mni3.innerHTML = '<span class="mob-icon"><i class="fa-solid fa-calendar-plus"></i></span><span>Bookings</span>';
       mni3.onclick = () => { openProfile(); switchProfileTab('bookings', document.querySelector('.profile-tab:nth-child(2)')); setMobNav(2); };
     }
     if (mni4) {
@@ -7503,7 +7605,7 @@ const LANGS = {
     pay_id_click:'Click or drag your ID here',pay_id_sub:'Max 5MB · JPG, PNG, PDF',
     pay_id_nin:'NIN Slip',pay_id_passport:'Passport',pay_id_licence:"Driver's Licence",pay_id_voter:"Voter's Card",
     pay_id_ok:'✅ ID uploaded successfully.',pay_back:'← Back',pay_review_pay:'Review & Pay →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Location',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Check-In',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Check-Out',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Nights',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Guest',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Uploaded',
+    pay_bs_loc:'Location',pay_bs_in:'Check-In',pay_bs_out:'Check-Out',pay_bs_nights:'Nights',pay_bs_guest:'Guest',pay_bs_trip:'Trip details',pay_bs_price:'Price details',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Uploaded',
     pay_bs_caution:'Caution (refundable)',pay_bs_total:'Total Due',
     pay_terms:'By proceeding you agree that your ID will be verified at arrival. The caution deposit is fully refundable on checkout.',
     pay_now_btn:'Pay Now →',pay_confirmed_title:'Booking Confirmed!',pay_ref_lbl:'Reference:',
@@ -7551,7 +7653,7 @@ const LANGS = {
     pay_id_click:"Cliquez ou déposez votre pièce d'identité ici",pay_id_sub:'Max 5 Mo · JPG, PNG, PDF',
     pay_id_nin:'Carte NIN',pay_id_passport:'Passeport',pay_id_licence:'Permis de conduire',pay_id_voter:"Carte d'électeur",
     pay_id_ok:"✅ Pièce d'identité envoyée avec succès.",pay_back:'← Retour',pay_review_pay:'Réviser & Payer →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Lieu',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Arrivée',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Départ',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Nuits',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Hôte',pay_bs_id:"<i class=\"fa-solid fa-id-card\"></i> Pièce d'identité",pay_bs_id_ok:'✅ Envoyée',
+    pay_bs_loc:'Lieu',pay_bs_in:'Arrivée',pay_bs_out:'Départ',pay_bs_nights:'Nuits',pay_bs_guest:'Hôte',pay_bs_trip:'Détails du séjour',pay_bs_price:'Détails du prix',pay_bs_id:"<i class=\"fa-solid fa-id-card\"></i> Pièce d'identité",pay_bs_id_ok:'✅ Envoyée',
     pay_bs_caution:'Caution (remboursable)',pay_bs_total:'Total dû',
     pay_terms:"En continuant, vous acceptez que votre pièce d'identité sera vérifiée à l'arrivée. La caution est entièrement remboursable au départ.",
     pay_now_btn:'Payer maintenant →',pay_confirmed_title:'Réservation confirmée !',pay_ref_lbl:'Référence :',
@@ -7599,7 +7701,7 @@ const LANGS = {
     pay_id_click:'Haz clic o arrastra tu ID aquí',pay_id_sub:'Máx. 5MB · JPG, PNG, PDF',
     pay_id_nin:'Cédula NIN',pay_id_passport:'Pasaporte',pay_id_licence:'Licencia de conducir',pay_id_voter:'Tarjeta de votante',
     pay_id_ok:'✅ ID subido con éxito.',pay_back:'← Atrás',pay_review_pay:'Revisar & Pagar →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Ubicación',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Llegada',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Salida',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Noches',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Huésped',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Subido',
+    pay_bs_loc:'Ubicación',pay_bs_in:'Llegada',pay_bs_out:'Salida',pay_bs_nights:'Noches',pay_bs_guest:'Huésped',pay_bs_trip:'Detalles del viaje',pay_bs_price:'Detalles del precio',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Subido',
     pay_bs_caution:'Caución (reembolsable)',pay_bs_total:'Total a pagar',
     pay_terms:'Al continuar, aceptas que tu ID será verificada al llegar. El depósito de caución es totalmente reembolsable al salir.',
     pay_now_btn:'Pagar ahora →',pay_confirmed_title:'¡Reserva confirmada!',pay_ref_lbl:'Referencia:',
@@ -7647,7 +7749,7 @@ const LANGS = {
     pay_id_click:'Clique ou arraste o seu ID aqui',pay_id_sub:'Máx. 5MB · JPG, PNG, PDF',
     pay_id_nin:'Cartão NIN',pay_id_passport:'Passaporte',pay_id_licence:'Carta de condução',pay_id_voter:'Cartão de eleitor',
     pay_id_ok:'✅ ID enviado com sucesso.',pay_back:'← Voltar',pay_review_pay:'Rever & Pagar →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Localização',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Check-In',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Check-Out',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Noites',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Hóspede',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Enviado',
+    pay_bs_loc:'Localização',pay_bs_in:'Check-In',pay_bs_out:'Check-Out',pay_bs_nights:'Noites',pay_bs_guest:'Hóspede',pay_bs_trip:'Detalhes da viagem',pay_bs_price:'Detalhes do preço',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Enviado',
     pay_bs_caution:'Caução (reembolsável)',pay_bs_total:'Total a pagar',
     pay_terms:'Ao continuar, concorda que o seu ID será verificado na chegada. A caução é totalmente reembolsável no checkout.',
     pay_now_btn:'Pagar agora →',pay_confirmed_title:'Reserva confirmada!',pay_ref_lbl:'Referência:',
@@ -7695,7 +7797,7 @@ const LANGS = {
     pay_id_click:'انقر أو اسحب هويتك هنا',pay_id_sub:'الحد الأقصى 5MB · JPG, PNG, PDF',
     pay_id_nin:'بطاقة NIN',pay_id_passport:'جواز سفر',pay_id_licence:'رخصة قيادة',pay_id_voter:'بطاقة انتخابية',
     pay_id_ok:'✅ تم تحميل الهوية بنجاح.',pay_back:'رجوع ←',pay_review_pay:'مراجعة ودفع ←',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> الموقع',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> الوصول',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> المغادرة',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> الليالي',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> الضيف',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> الهوية',pay_bs_id_ok:'✅ تم التحميل',
+    pay_bs_loc:'الموقع',pay_bs_in:'الوصول',pay_bs_out:'المغادرة',pay_bs_nights:'الليالي',pay_bs_guest:'الضيف',pay_bs_trip:'تفاصيل الرحلة',pay_bs_price:'تفاصيل السعر',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> الهوية',pay_bs_id_ok:'✅ تم التحميل',
     pay_bs_caution:'التأمين (قابل للاسترداد)',pay_bs_total:'الإجمالي المستحق',
     pay_terms:'بالمتابعة، تقر بأن هويتك ستُفحص عند الوصول. التأمين قابل للاسترداد بالكامل عند المغادرة.',
     pay_now_btn:'ادفع الآن ←',pay_confirmed_title:'تم تأكيد الحجز!',pay_ref_lbl:'المرجع:',
@@ -7743,7 +7845,7 @@ const LANGS = {
     pay_id_click:'点击或拖放您的证件到此处',pay_id_sub:'最大5MB · JPG, PNG, PDF',
     pay_id_nin:'NIN卡',pay_id_passport:'护照',pay_id_licence:'驾驶证',pay_id_voter:'选民证',
     pay_id_ok:'✅ 证件上传成功。',pay_back:'← 返回',pay_review_pay:'确认并支付 →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> 位置',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> 入住',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> 退房',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> 晚数',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> 客人',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> 证件',pay_bs_id_ok:'✅ 已上传',
+    pay_bs_loc:'位置',pay_bs_in:'入住',pay_bs_out:'退房',pay_bs_nights:'晚数',pay_bs_guest:'客人',pay_bs_trip:'行程详情',pay_bs_price:'价格详情',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> 证件',pay_bs_id_ok:'✅ 已上传',
     pay_bs_caution:'押金（可退还）',pay_bs_total:'应付总额',
     pay_terms:'继续即表示您同意您的证件将在到达时被核查。押金在退房时全额退还。',
     pay_now_btn:'立即支付 →',pay_confirmed_title:'预订已确认！',pay_ref_lbl:'参考编号：',
@@ -7791,7 +7893,7 @@ const LANGS = {
     pay_id_click:'Tẹ tàbí fà ID rẹ sí ibí',pay_id_sub:'Límítì 5MB · JPG, PNG, PDF',
     pay_id_nin:'Kọ́ọ̀dù NIN',pay_id_passport:'Pásípọ̀ọ̀tì',pay_id_licence:'Fáìsì Ọkọ̀',pay_id_voter:'Kọ́ọ̀dù Ìdìbò',
     pay_id_ok:'✅ ID ti gba gege.',pay_back:'← Padà',pay_review_pay:'Ṣàyẹ̀wò & Sanwó →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Ibi',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Ọjọ́ Ìwọlé',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Ọjọ́ Ìkúrò',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Àwọn Òru',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Àlejò',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Ti Gbe Soke',
+    pay_bs_loc:'Ibi',pay_bs_in:'Ọjọ́ Ìwọlé',pay_bs_out:'Ọjọ́ Ìkúrò',pay_bs_nights:'Àwọn Òru',pay_bs_guest:'Àlejò',pay_bs_trip:'Àwọn Àlàyé Ìrìnàjò',pay_bs_price:'Àwọn Àlàyé Idiyele',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Ti Gbe Soke',
     pay_bs_caution:'Ìdánilójú (tí a ó pada)',pay_bs_total:'Àpapọ̀ Tó Yẹ',
     pay_terms:'Nípa tẹ̀síwájú, o gba pé ID rẹ yóò ṣàyẹ̀wò nígbà tí o bá dé. Owó ìdánilójú yóò pada nígbà tí o bá lọ.',
     pay_now_btn:'Sanwó Báyìí →',pay_confirmed_title:'Ìpèsè Ti Jẹ́ Ìdánilójú!',pay_ref_lbl:'Ìtọkàn:',
@@ -7839,7 +7941,7 @@ const LANGS = {
     pay_id_click:'Pịa ma ọ bụ dọọ ID gị ebe a',pay_id_sub:'Nke kachasị 5MB · JPG, PNG, PDF',
     pay_id_nin:'Kaadị NIN',pay_id_passport:'Passport',pay_id_licence:'Láịsẹnsị Ọkụ Ụgbọ',pay_id_voter:'Kaadị Ntinye Votu',
     pay_id_ok:'✅ ID ebulitela nke ọma.',pay_back:'← Laghachi',pay_review_pay:'Nyochaa & Kwụọ ụgwọ →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Ebe',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Ịbanye',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Ịpụ',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Abalị',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Ọbịa',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Ebulitela',
+    pay_bs_loc:'Ebe',pay_bs_in:'Ịbanye',pay_bs_out:'Ịpụ',pay_bs_nights:'Abalị',pay_bs_guest:'Ọbịa',pay_bs_trip:'Nkọwa njem',pay_bs_price:'Nkọwa ọnụ ahịa',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ Ebulitela',
     pay_bs_caution:'Ego nchekwa (a ga-azaghachi)',pay_bs_total:'Ngụkọta a ga-akwụ',
     pay_terms:"Site n'iga n'ihu, ị kwenye na a ga-enyocha ID gị mgbe ị ruo. A ga-azaghachi ego nchekwa niile mgbe ị pụ.",
     pay_now_btn:'Kwụọ ugbu a →',pay_confirmed_title:'Edere aha kwadoro!',pay_ref_lbl:'Ntụaka:',
@@ -7887,7 +7989,7 @@ const LANGS = {
     pay_id_click:"Danna ko jawo ID ɗinka zuwa nan",pay_id_sub:'Max 5MB · JPG, PNG, PDF',
     pay_id_nin:'Katin NIN',pay_id_passport:'Fasfo',pay_id_licence:"Lasisin Tuƙa",pay_id_voter:'Katin Zaɓe',
     pay_id_ok:'✅ An loda ID cikin nasara.',pay_back:'← Koma',pay_review_pay:'Duba & Biya →',
-    pay_bs_loc:'<i class=\"fa-solid fa-location-dot\"></i> Wuri',pay_bs_in:'<i class=\"fa-solid fa-calendar-check\"></i> Shiga',pay_bs_out:'<i class=\"fa-solid fa-calendar-xmark\"></i> Fita',pay_bs_nights:'<i class=\"fa-solid fa-moon\"></i> Dare',pay_bs_guest:'<i class=\"fa-solid fa-user\"></i> Baƙo',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ An Loda',
+    pay_bs_loc:'Wuri',pay_bs_in:'Shiga',pay_bs_out:'Fita',pay_bs_nights:'Dare',pay_bs_guest:'Baƙo',pay_bs_trip:'Bayanin tafiya',pay_bs_price:'Bayanin farashi',pay_bs_id:'<i class=\"fa-solid fa-id-card\"></i> ID',pay_bs_id_ok:'✅ An Loda',
     pay_bs_caution:'Tabbaci (za a mayar)',pay_bs_total:'Jimlar Da Za a Biya',
     pay_terms:"Ta hanyar ci gaba, kana yarda cewa za a tabbatar da ID ɗinka yayin isowa. An mayar da kuɗin tabbaci gaba ɗaya bayan fita.",
     pay_now_btn:'Biya Yanzu →',pay_confirmed_title:'An Tabbatar da Ajiya!',pay_ref_lbl:'Bayani:',

@@ -757,6 +757,7 @@ section { padding:100px 0; }
   align-items:center; justify-content:space-between;
   padding:0 8px; opacity:0; transition:opacity 0.25s;
   z-index:2;
+  pointer-events:none;
 }
 .listing-card:hover .card-img-arrows { opacity:1; }
 .card-img-arr {
@@ -766,6 +767,7 @@ section { padding:100px 0; }
   font-size:0.85rem; cursor:pointer; transition:all 0.2s;
   box-shadow:0 2px 8px rgba(0,0,0,0.15); color:var(--charcoal);
   flex-shrink:0;
+  pointer-events:auto;
 }
 .card-img-arr:hover { background:var(--white); transform:scale(1.1); }
 @media (hover: none) { .card-img-arrows { opacity:1; } }

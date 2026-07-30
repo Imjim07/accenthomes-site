@@ -228,9 +228,6 @@
 [data-theme="dark"] .mob-item.active { color:var(--bronze); }
 
 /* ── CARDS & SURFACES ────────────────────────────────────────── */
-[data-theme="dark"] .listing-card { background:none; }
-[data-theme="dark"] .card-body { background:var(--bg); }
-[data-theme="dark"] .card-name { color:var(--charcoal); }
 [data-theme="dark"] .tcard { background:var(--surface); border-color:var(--ash-faint); }
 [data-theme="dark"] .tcard-text { color:var(--ash); }
 [data-theme="dark"] .host-card { background:var(--surface); border-color:var(--ash-faint); }
@@ -679,149 +676,20 @@ section { padding:100px 0; }
   display:flex; justify-content:space-between; align-items:flex-end;
   margin-bottom:60px; gap:24px;
 }
-/* CAROUSEL */
-.carousel-wrapper {
-  position:relative; margin-top:0;
-  overflow-x:auto; overflow-y:hidden;
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none; user-select:none;
-  touch-action:pan-x;
-}
-.carousel-wrapper::-webkit-scrollbar { display:none; }
 .listings-grid {
-  display:flex; gap:24px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:0 16px;
 }
-/* ── Desktop: all apartments in a grid, no carousel ── */
 @media (min-width:768px) {
-  .carousel-wrapper {
-    overflow:visible !important;
-    scroll-snap-type:none !important;
-  }
   .listings-grid {
-    display:grid !important;
+    display:grid;
     grid-template-columns:repeat(2,1fr);
-    flex-wrap:unset;
+    gap:24px;
+    padding:0 32px;
   }
-  .listing-card { scroll-snap-align:none; }
-  #carouselNav  { display:none !important; }
 }
-@media (min-width:1280px) {
-  .listings-grid { grid-template-columns:repeat(4,1fr) !important; }
-}
-.carousel-nav {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-top:28px;
-}
-.carousel-dots { display:flex; gap:8px; align-items:center; }
-.carousel-dot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--ash-faint); border:none; cursor:pointer;
-  transition:all 0.3s; padding:0;
-}
-.carousel-dot.active { background:var(--ash); width:24px; border-radius:20px; }
-.carousel-arrows { display:flex; gap:10px; }
-.carousel-arrow {
-  width:44px; height:44px; border-radius:50%;
-  border:1.5px solid var(--ash-faint); background:var(--white);
-  display:flex; align-items:center; justify-content:center;
-  font-size:1rem; cursor:pointer; transition:all var(--transition);
-  color:var(--ash); font-family:var(--font-body);
-}
-.carousel-arrow:hover { border-color:var(--ash); background:var(--ash); color:var(--white); }
-.carousel-arrow:disabled { opacity:0.3; cursor:not-allowed; }
-.carousel-count { font-size:0.8rem; color:var(--ash-lt); letter-spacing:0.05em; }
-.listing-card {
-  background:#F8F8F8; border-radius:var(--radius-lg);
-  overflow:hidden; transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
-  box-shadow:var(--shadow-sm); border:1px solid var(--ash-faint);
-  flex:0 0 380px; cursor:pointer; scroll-snap-align:start;
-  touch-action:pan-x pan-y;
-}
-.listing-card:hover { transform:translateY(-8px); box-shadow:var(--shadow-lg); border-color:rgba(61,61,61,0.2); }
-.listing-card.touched { transform:translateY(-8px); box-shadow:var(--shadow-lg); border-color:rgba(61,61,61,0.2); }
-.card-img { position:relative; height:280px; overflow:hidden; background:var(--ash-faint); }
-.card-img img { display:block; width:100%; height:100%; object-fit:cover; object-position:center center; transition:opacity 0.4s ease; }
-.listing-card:hover .card-img img { opacity:0.92; }
-
-/* Card internal image slider */
-.card-slides { position:absolute; inset:0; }
-.card-slide { position:absolute; inset:0; opacity:0; transition:opacity 0.45s ease; }
-.card-slide.active { opacity:1; }
-.card-slide img { display:block; width:100%; height:100%; object-fit:cover; object-position:center center; }
-
-/* Card image arrows */
-.card-img-arrows {
-  position:absolute; inset:0; display:flex;
-  align-items:center; justify-content:space-between;
-  padding:0 8px; opacity:0; transition:opacity 0.25s;
-  z-index:2;
-  pointer-events:none;
-}
-.listing-card:hover .card-img-arrows { opacity:1; }
-.card-img-arr {
-  width:32px; height:32px; border-radius:50%;
-  background:rgba(255,255,255,0.88); border:none;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.85rem; cursor:pointer; transition:all 0.2s;
-  box-shadow:0 2px 8px rgba(0,0,0,0.15); color:var(--charcoal);
-  flex-shrink:0;
-  pointer-events:auto;
-}
-.card-img-arr:hover { background:var(--white); transform:scale(1.1); }
-@media (hover: none) { .card-img-arrows { opacity:1; } }
-
-/* Card image dots */
-.card-img-dots {
-  position:absolute; bottom:10px; left:50%;
-  transform:translateX(-50%);
-  display:flex; gap:5px; z-index:2;
-}
-.card-img-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:rgba(255,255,255,0.5); border:none; cursor:pointer;
-  transition:all 0.25s; padding:0;
-}
-.card-img-dot.active { background:var(--white); width:14px; border-radius:20px; }
-.card-badge {
-  position:absolute; top:14px; left:14px;
-  font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase;
-  padding:5px 12px; border-radius:20px; font-weight:600;
-}
-.badge-available { background:var(--lilac-soft); color:var(--ink); }
-.badge-booked { background:rgba(156,110,166,0.9); color:#fff; backdrop-filter:blur(4px); }
-.badge-unavailable { background:rgba(61,61,61,0.7); color:#fff; backdrop-filter:blur(4px); }
-.card-body { padding:26px; }
-.card-loc {
-  font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
-  color:var(--bronze); margin-bottom:8px; display:flex; align-items:center; gap:5px;
-  font-weight:600;
-}
-.card-name {
-  font-family:var(--font-display); font-size:1.45rem; font-weight:400;
-  color:var(--charcoal); margin-bottom:10px; line-height:1.2;
-}
-.card-desc {
-  font-size:0.855rem; color:var(--ash-lt); margin-bottom:18px;
-  line-height:1.7; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2;
-  -webkit-box-orient:vertical; overflow:hidden;
-}
-.card-chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:22px; }
-.chip {
-  background:var(--bronze-faint); color:var(--bronze);
-  font-size:0.68rem; padding:4px 11px; border-radius:20px; font-weight:500;
-}
-.card-foot {
-  display:flex; align-items:center; justify-content:space-between;
-  padding-top:18px; border-top:1px solid var(--ash-faint);
-}
-.card-price .amount {
-  font-family:var(--font-display); font-size:1.6rem; font-weight:500;
-  color:var(--charcoal); line-height:1;
-}
-.card-price .unit { font-size:0.65rem; color:var(--ash-lt); text-transform:uppercase; letter-spacing:0.1em; }
-.card-price .caution { font-size:0.65rem; color:var(--ash-lt); margin-top:2px; }
 .btn-book {
   background:var(--ash); color:var(--white);
   padding:11px 22px; border-radius:var(--radius);
@@ -1109,12 +977,12 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 
 /* WA FLOAT */
 /* WhatsApp Chat Widget */
-.wa-widget { position:fixed; bottom:32px; right:32px; z-index:500; display:flex; flex-direction:column; align-items:flex-end; gap:12px; }
+.wa-widget { position:fixed; bottom:32px; right:32px; z-index:500; display:flex; flex-direction:column; align-items:flex-end; gap:12px; pointer-events:none; }
 .wa-float {
   width:56px; height:56px; border-radius:50%; background:#25D366; color:#fff;
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 4px 20px rgba(37,211,102,0.5); transition:all var(--transition);
-  cursor:pointer; border:none; flex-shrink:0;
+  cursor:pointer; border:none; flex-shrink:0; pointer-events:auto;
 }
 .wa-float:hover { transform:scale(1.08); box-shadow:0 8px 28px rgba(37,211,102,0.65); }
 .wa-float svg { width:28px; height:28px; }
@@ -1225,16 +1093,16 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 }
 .apt-modal-close:hover { background:rgba(0,0,0,0.7); }
 .apt-modal-body { padding:32px; }
-.apt-modal-loc { font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ash); margin-bottom:8px; font-weight:600; }
-.apt-modal-name { font-family:var(--font-display); font-size:2rem; font-weight:400; color:var(--charcoal); margin-bottom:14px; line-height:1.15; }
-.apt-modal-desc { font-size:0.95rem; color:var(--ash-lt); line-height:1.8; margin-bottom:24px; font-weight:300; }
+.apt-modal-loc { font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; font-weight:600; }
+.apt-modal-name { font-family:var(--font-body); font-size:26px; font-weight:500; color:var(--ink); margin-bottom:14px; line-height:1.2; }
+.apt-modal-desc { font-family:var(--font-body); font-size:16px; color:var(--body); line-height:1.7; margin-bottom:24px; font-weight:400; }
 .apt-modal-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
 .apt-modal-footer {
   display:flex; align-items:center; justify-content:space-between;
   padding-top:24px; border-top:1px solid var(--ash-faint);
   flex-wrap:wrap; gap:16px;
 }
-.apt-modal-price .big { font-family:var(--font-display); font-size:2.2rem; font-weight:500; color:var(--charcoal); line-height:1; }
+.apt-modal-price .big { font-family:var(--font-body); font-size:26px; font-weight:600; color:var(--ink); line-height:1; }
 .apt-modal-price .unit { font-size:0.7rem; color:var(--ash-lt); text-transform:uppercase; letter-spacing:0.1em; margin-top:2px; }
 .apt-modal-price .caution-note { font-size:0.72rem; color:var(--ash-lt); margin-top:4px; }
 .apt-modal-actions { display:flex; gap:10px; flex-wrap:wrap; }
@@ -1247,7 +1115,7 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 }
 .modal-book-btn:hover { background:var(--bronze-lt); }
 /* Sticky booking footer */
-.apt-modal { display:flex; flex-direction:column; overflow:hidden; }
+.apt-modal { display:flex; flex-direction:column; }
 .apt-modal-body { overflow-y:auto; flex:1; }
 .apt-modal-footer {
   padding:16px 32px; border-top:1px solid var(--ash-faint);
@@ -1367,10 +1235,9 @@ footer { background:#2b2b2b; padding:72px 0 36px; border-top:1px solid rgba(255,
 
 /* RESPONSIVE */
 @media(max-width:600px) {
-  .listing-card { flex:0 0 calc(100vw - 100px); }
   .apt-modal-img-wrap { height:260px; }
   .apt-modal-body { padding:20px; }
-  .apt-modal-name { font-size:1.5rem; }
+  .apt-modal-name { font-size:22px; }
 }
 
 
@@ -2763,46 +2630,102 @@ body.login-open {
 .l-terms { font-size:0.72rem; color:var(--ash-lt); text-align:center; margin-top:24px; line-height:1.7; }
 
 /* ============================================================
-   CATEGORY PILLS
+   PROPERTY CARD
    ============================================================ */
-
-/* ============================================================
-   AIRBNB-STYLE CARDS
-   ============================================================ */
-.listing-card {
-  cursor:pointer; background:none !important;
-  border:none !important; border-radius:0 !important;
-  box-shadow:none !important; overflow:visible !important;
-  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+.property-card {
+  position:relative;
+  height:380px;
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:var(--shadow-card);
 }
-.listing-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-card); }
-
-.card-img-wrap {
-  position:relative; border-radius:14px;
-  overflow:hidden; aspect-ratio:4/3; min-height:220px;
-  background:var(--ash-faint); margin-bottom:10px;
+.property-card-image {
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-color:var(--surface-strong);
 }
-.card-heart {
-  position:absolute; top:12px; right:12px; z-index:3;
-  width:32px; height:32px; border-radius:50%;
-  background:rgba(255,255,255,0.82); border:none;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.95rem; cursor:pointer;
-  transition:all 0.2s; backdrop-filter:blur(8px);
+.property-card-gradient {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.65) 100%);
+  pointer-events:none;
 }
-.card-heart:hover { background:#fff; transform:scale(1.1); }
-.card-heart.liked { color:#E31C5F; }
-
-.card-body { padding:12px 4px 0 !important; }
-.card-loc { font-size:14px; color:var(--ash-lt); margin-bottom:6px; }
-.card-name {
-  font-family:var(--font-body); font-size:17px;
-  font-weight:500; color:var(--charcoal); margin-bottom:4px; line-height:1.2;
+.property-card-overlay {
+  position:absolute;
+  bottom:16px;
+  left:16px;
+  right:60px;
+  z-index:2;
 }
-.card-amen { font-size:14px; color:var(--ash-lt); margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.card-price-row { display:flex; align-items:baseline; gap:4px; margin-top:4px; }
-.card-price { font-family:var(--font-body); font-size:16px; font-weight:500; color:var(--charcoal); }
-.card-price-u { font-size:0.72rem; color:var(--ash-lt); }
+.property-card-name {
+  font-size:20px;
+  font-weight:600;
+  color:#fff;
+  line-height:1.25;
+  text-shadow:0 1px 3px rgba(0,0,0,0.4);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.property-card-loc {
+  font-size:14px;
+  font-weight:500;
+  color:rgba(255,255,255,0.9);
+  margin-top:3px;
+  line-height:1.3;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.property-card-price {
+  font-size:16px;
+  font-weight:500;
+  color:#fff;
+  margin-top:6px;
+}
+.property-card-badge {
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:3;
+  background:var(--lilac-soft);
+  color:var(--ink);
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  font-weight:600;
+}
+.property-card-heart {
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:3;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.9);
+  border:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--ink);
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.property-card-heart:hover { background:#fff; transform:scale(1.1); }
+.property-card-heart .fa-heart { font-size:14px; }
+.property-card-heart .fa-solid { display:none; }
+.property-card-heart.liked .fa-regular { display:none; }
+.property-card-heart.liked .fa-solid   { display:block; color:#E31C5F; }
+@media (min-width:768px) {
+  .property-card { height:320px; }
+  .property-card-name { font-size:22px; }
+}
 
 /* ============================================================
    MOBILE BOTTOM NAV
@@ -2909,9 +2832,6 @@ body.login-open {
   section { padding:64px 0; }
   .container { padding:0 20px; }
 
-  /* Listings carousel — 1.2 cards visible: card + 36px peek of next */
-  .listing-card { flex:0 0 calc(100vw - 100px); }
-
   /* Testimonials */
   .testimonials-grid { grid-template-columns:1fr; }
 
@@ -2944,11 +2864,11 @@ body.login-open {
 
   /* Apt detail modal — full screen bottom sheet */
   .apt-overlay { padding:0; align-items:flex-end; }
-  .apt-modal { max-height:96vh; border-radius:var(--radius-lg) var(--radius-lg) 0 0; overflow:hidden; }
+  .apt-modal { max-height:96vh; border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
   .apt-photo-area { flex-shrink:0; }
   .apt-modal-img-wrap { height:240px; }
   .apt-modal-body { padding:20px; }
-  .apt-modal-name { font-size:1.4rem; }
+  .apt-modal-name { font-size:22px; }
   .apt-modal-footer {
     flex-direction:row; align-items:center;
     flex-shrink:0; position:static;
@@ -2959,14 +2879,14 @@ body.login-open {
     gap:12px;
   }
   .apt-modal-price { flex:1; }
-  .apt-modal-price .big { font-size:1.6rem; }
+  .apt-modal-price .big { font-size:20px; }
   .apt-modal-actions { flex-shrink:0; }
   .apt-modal-actions .btn-primary { padding:13px 22px; font-size:0.8rem; white-space:nowrap; }
 
   /* Tap targets — 44px minimum */
   .nav-links a, .nav-btn, .nav-user-btn, .theme-toggle,
   .apt-modal-close, .mob-nav a, .mob-nav button { min-height:44px; min-width:44px; display:inline-flex; align-items:center; justify-content:center; }
-  .listing-card-cta, .btn-primary, .btn-outline { min-height:44px; }
+  .btn-primary, .btn-outline { min-height:44px; }
   .cal-day { min-height:40px; min-width:40px; }
 
   /* Smoother modal entry (slide up from bottom) */
@@ -3306,9 +3226,6 @@ body.login-open {
   .contact-panel { padding:28px 20px; }
 }
 
-/* Carousel arrow chevrons — use parent button colour, not any global rule */
-.carousel-arrow .fa-chevron-left,
-.carousel-arrow .fa-chevron-right { color: inherit; }
 
 /* ── Status overlay (offline + maintenance) ─────────── */
 .status-overlay{position:fixed;inset:0;z-index:99999;background:#181818;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px}
@@ -3599,13 +3516,8 @@ body.login-open {
         <p class="section-lead" data-i18n="sec_residences_lead">Each residence is individually appointed and maintained to a standard that consistently exceeds expectations.</p>
       </div>
     </div>
-    <div class="carousel-wrapper" id="carouselWrapper">
-      <div class="listings-grid" id="listingsGrid">
-        <div class="no-listings">Loading residences…</div>
-      </div>
-    </div>
-    <div class="carousel-nav" id="carouselNav" style="display:none">
-      <div class="carousel-dots" id="carouselDots"></div>
+    <div class="listings-grid" id="listingsGrid">
+      <div class="no-listings">Loading residences…</div>
     </div>
   </div>
 </section>
@@ -4594,16 +4506,25 @@ function toggleMenu() {
     menu.classList.add("open");
     btn.classList.add("open");
     document.body.style.overflow = "hidden";
+    pushModalHistory('mobileMenu');
   }
 }
 function toggleWaWidget() {
   const popup = document.getElementById('waPopup');
   const badge = document.getElementById('waBadge');
-  popup?.classList.toggle('open');
-  if (badge) badge.style.display = 'none';
+  if (popup?.classList.contains('open')) {
+    closeWaWidget();
+  } else {
+    popup?.classList.add('open');
+    if (badge) badge.style.display = 'none';
+    pushModalHistory('waPopup');
+  }
 }
 function closeWaWidget() {
-  document.getElementById('waPopup')?.classList.remove('open');
+  const popup = document.getElementById('waPopup');
+  if (!popup?.classList.contains('open')) return;
+  popup.classList.remove('open');
+  popModalHistory();
 }
 // Show badge after 8 seconds if widget not yet opened
 setTimeout(() => {
@@ -4637,17 +4558,22 @@ function openNbSheet() {
       `<a class="nb-sheet-map-btn" href="https://maps.google.com/?q=Marble+Hill,+Catholic+Church+Road,+Asaba,+Delta+State,+Nigeria" target="_blank" rel="noopener">View on Google Maps →</a>`);
   }
   document.getElementById('nbSheet').classList.add('open');
+  pushModalHistory('nbSheet');
   document.body.style.overflow = 'hidden';
 }
 function closeNbSheet() {
-  document.getElementById('nbSheet').classList.remove('open');
+  const el = document.getElementById('nbSheet');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
   document.body.style.overflow = '';
+  popModalHistory();
 }
 function handleNbSheetBdrop(e) {
   if (e.target === document.getElementById('nbSheet')) closeNbSheet();
 }
 function closeMenu() {
   const menu = document.getElementById("mobileMenu");
+  if (!menu.classList.contains("open")) return;
   const btn  = document.getElementById("hamburgerBtn");
   const inner = document.getElementById("mobileMenuInner");
   if (inner) {
@@ -4657,11 +4583,13 @@ function closeMenu() {
       inner.style.animation = "";
       btn.classList.remove("open");
       document.body.style.overflow = "";
+      popModalHistory();
     }, 240);
   } else {
     menu.classList.remove("open");
     btn.classList.remove("open");
     document.body.style.overflow = "";
+    popModalHistory();
   }
 }
 function handleMenuBackdrop(e) {
@@ -4696,52 +4624,29 @@ async function loadListings(){
     return;
   }
 
-  grid.innerHTML=listings.map(l=>`
-    <div class="listing-card" onclick="openAptModal('${l.id}')">
-      <!-- Image wrap -->
-      <div class="card-img-wrap">
-        <div class="card-slides" id="slides_${l.id}">
-          ${(()=>{
-            const toUrl = p => typeof p === 'string' ? p : (p && p.url ? p.url : '');
-            const imgs = (l.photos && l.photos.length ? l.photos.map(toUrl) : [l.image || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600']).filter(Boolean);
-            return imgs.map((src,i)=>`<div class="card-slide ${i===0?'active':''}" data-index="${i}"><img src="${src}" alt="${l.name}" loading="lazy" onerror="this.onerror=null;this.style.opacity='0'"></div>`).join('');
-          })()}
-        </div>
-        ${(()=>{
-            const toUrl = p => typeof p === 'string' ? p : (p && p.url ? p.url : '');
-            const imgs = (l.photos && l.photos.length ? l.photos.map(toUrl) : [l.image]).filter(Boolean);
-            if(imgs.length<=1)return '';
-          return `<div class="card-img-arrows">
-            <button class="card-img-arr" onclick="event.stopPropagation();cardImgNav('${l.id}',-1)">‹</button>
-            <button class="card-img-arr" onclick="event.stopPropagation();cardImgNav('${l.id}',1)">›</button>
-          </div>
-          <div class="card-img-dots" id="dots_${l.id}">
-            ${imgs.map((_,i)=>`<button class="card-img-dot ${i===0?'active':''}" onclick="event.stopPropagation();cardImgGo('${l.id}',${i})"></button>`).join('')}
-          </div>`;
-        })()}
-        <button class="card-heart" onclick="event.stopPropagation();this.classList.toggle('liked')" title="Save">♡</button>
-        <span class="card-badge badge-available">
-          ${LANGS[_activeLang]?.card_available||'Available'}
-        </span>
-      </div>
-      <!-- Card body — Airbnb style -->
-      <div class="card-body">
-        <div class="card-name">${l.name}</div>
-        <div class="card-loc">${l.location||'Asaba GRA'}${l.bedrooms?' · '+l.bedrooms+' Bed':''}</div>
-        <div class="card-amen">${(l.amenities||[]).slice(0,3).map(a=>typeof a==='string'?a:(a.label||'')).filter(Boolean).join(' · ')}</div>
-        <div class="card-price-row">
-          <span class="card-price">₦${Number(l.priceNight||0).toLocaleString()}</span>
-          <span class="card-price-u">${LANGS[_activeLang]?.card_per_night||'/ night'}</span>
-        </div>
-      </div>
+  grid.innerHTML = listings.map(l => {
+    const toUrl = p => typeof p === 'string' ? p : (p && p.url ? p.url : '');
+    const cover = (l.photos && l.photos.length) ? toUrl(l.photos[0]) : (l.image || '');
+    return `
+<div class="property-card" onclick="openAptModal('${l.id}')">
+  <div class="property-card-image" style="background-image:url('${cover}')">
+    <span class="property-card-badge">${LANGS[_activeLang]?.card_available||'Available'}</span>
+    <button class="property-card-heart" onclick="event.stopPropagation();this.classList.toggle('liked')" title="Save">
+      <i class="fa-regular fa-heart"></i>
+      <i class="fa-solid fa-heart"></i>
+    </button>
+    <div class="property-card-gradient"></div>
+    <div class="property-card-overlay">
+      <div class="property-card-name">${l.name}</div>
+      <div class="property-card-loc">${l.location||'Asaba GRA'}${l.bedrooms?' · '+l.bedrooms+' Bed':''}</div>
+      <div class="property-card-price">₦${Number(l.priceNight||0).toLocaleString()} ${LANGS[_activeLang]?.card_per_night||'/ night'}</div>
     </div>
-  `).join('');
+  </div>
+</div>`;
+  }).join('');
 
   sel.innerHTML='<option value="">Any available residence</option>'+
     listings.map(l=>`<option value="${l.name}">${l.name}</option>`).join('');
-
-  // Init carousel after DOM renders
-  requestAnimationFrame(() => { requestAnimationFrame(() => { initCarousel(listings.length); }); });
 
   // Update listing count
   const countEl = document.getElementById('listingCount');
@@ -4763,6 +4668,7 @@ function openGallery(photos, startIdx = 0) {
   _lbIdx    = Math.max(0, Math.min(startIdx, _lbPhotos.length - 1));
   _lbRender();
   document.getElementById('lightbox').classList.add('open');
+  pushModalHistory('lightbox');
   document.body.style.overflow = 'hidden';
 }
 function openLb(src) { openGallery([src], 0); }
@@ -4792,16 +4698,14 @@ function lbNav(delta) {
   _lbRender();
 }
 function closeLb() {
-  document.getElementById('lightbox').classList.remove('open');
+  const el = document.getElementById('lightbox');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
   const aptStillOpen = document.getElementById('aptOverlay')?.classList.contains('open');
   document.body.style.overflow = aptStillOpen ? 'hidden' : '';
+  popModalHistory();
 }
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (document.getElementById('lightbox')?.classList.contains('open')) closeLb();
-    if (document.getElementById('rulesOverlay')?.classList.contains('open')) closeRulesModal();
-    if (document.getElementById('nbSheet')?.classList.contains('open')) closeNbSheet();
-  }
   if (document.getElementById('lightbox')?.classList.contains('open')) {
     if (e.key === 'ArrowRight') lbNav(1);
     if (e.key === 'ArrowLeft')  lbNav(-1);
@@ -4809,6 +4713,66 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('lightbox')?.addEventListener('click', function(e) {
   if (e.target === this) closeLb();
+});
+
+// ── HISTORY API — MODAL BACK NAVIGATION ─────────────────────
+const _modalBackStack = [];
+let _backNavInProgress = false;
+let _replaceNextHistoryPush = false;
+
+function _closeModalById(id) {
+  switch (id) {
+    case 'aptOverlay':          closeApt();          break;
+    case 'lightbox':            closeLb();           break;
+    case 'payOverlay':          closePay();          break;
+    case 'authOverlay':         closeAuthModal();    break;
+    case 'emailVerifyOverlay':  closeEmailVerify();  break;
+    case 'profileSidebar':      closeProfile();      break;
+    case 'nbSheet':             closeNbSheet();      break;
+    case 'rulesOverlay':        closeRulesModal();   break;
+    case 'mobileMenu':          closeMenu();         break;
+    case 'waPopup':             closeWaWidget();     break;
+  }
+}
+
+function pushModalHistory(modalId) {
+  if (_replaceNextHistoryPush) {
+    _replaceNextHistoryPush = false;
+    _modalBackStack.pop();
+    _modalBackStack.push(modalId);
+    history.replaceState({ modal: modalId }, '');
+    return;
+  }
+  _modalBackStack.push(modalId);
+  history.pushState({ modal: modalId }, '');
+}
+
+function popModalHistory() {
+  if (_backNavInProgress) return;
+  if (_modalBackStack.length === 0) return;
+  _modalBackStack.pop();
+  _backNavInProgress = true;
+  history.back();
+}
+
+window.addEventListener('popstate', () => {
+  if (_backNavInProgress) {
+    _backNavInProgress = false;
+    return;
+  }
+  const modalToClose = _modalBackStack[_modalBackStack.length - 1];
+  if (!modalToClose) return;
+  _backNavInProgress = true;
+  _modalBackStack.pop();
+  _closeModalById(modalToClose);
+  _backNavInProgress = false;
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' && e.key !== 'Esc') return;
+  if (_modalBackStack.length === 0) return;
+  const topModal = _modalBackStack[_modalBackStack.length - 1];
+  _closeModalById(topModal);
 });
 
 // ============================================================
@@ -4900,7 +4864,7 @@ async function submitLagos(){
 async function openPay(id, checkIn, checkOut) {
   const listings = await getListings();
   const l = listings.find(x => x.id === id);
-  if (!l) return;
+  if (!l) { _replaceNextHistoryPush = false; return; }
   currentAptData = l;
   resetPayModal();
   lockBodyScroll();
@@ -4908,6 +4872,7 @@ async function openPay(id, checkIn, checkOut) {
   document.getElementById("payLoc").textContent   = l.location || "Asaba, Delta State";
   document.getElementById("payPrice").textContent = "₦" + Number(l.priceNight||0).toLocaleString() + "/night";
   document.getElementById("payOverlay").classList.add("open");
+  pushModalHistory('payOverlay');
   // Pre-fill dates from the calendar (saved before the apt modal closed)
   if (checkIn)  { const el = document.getElementById('pIn');  if (el) el.value = checkIn; }
   if (checkOut) { const el = document.getElementById('pOut'); if (el) el.value = checkOut; }
@@ -4915,9 +4880,12 @@ async function openPay(id, checkIn, checkOut) {
 }
 
 function closePay(){
-  document.getElementById("payOverlay").classList.remove("open");
+  const el = document.getElementById("payOverlay");
+  if (!el.classList.contains("open")) return;
+  el.classList.remove("open");
   unlockBodyScroll();
   currentAptData = null;
+  popModalHistory();
 }
 
 function pStepGuests(delta) {
@@ -5606,6 +5574,7 @@ async function resumePendingPayment() {
     document.getElementById("payPrice").textContent = "₦" + Number(l.priceNight||0).toLocaleString() + "/night";
   }
   document.getElementById("payOverlay").classList.add("open");
+  pushModalHistory('payOverlay');
   // Restore step 1 fields from pending data
   const nameEl = document.getElementById('pName');
   if (nameEl) nameEl.value = pending.guestName || '';
@@ -5739,13 +5708,17 @@ function openAuthModal(tab = 'login', note = null) {
     else       noteEl.style.display = 'none';
   }
   document.getElementById('authOverlay').classList.add('open');
+  pushModalHistory('authOverlay');
   lockBodyScroll();
 }
 function closeAuthModal() {
-  document.getElementById('authOverlay').classList.remove('open');
+  const el = document.getElementById('authOverlay');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
   const noteEl = document.getElementById('authNote');
   if (noteEl) noteEl.style.display = 'none';
   unlockBodyScroll();
+  popModalHistory();
 }
 function handleAuthOverlay(e) {
   if (e.target === document.getElementById('authOverlay')) closeAuthModal();
@@ -5927,15 +5900,19 @@ function openEmailVerify(afterVerifiedCallback) {
   const emailEl = document.getElementById('emailVerifyTarget');
   if (emailEl) emailEl.textContent = currentUser?.email || '';
   document.getElementById('emailVerifyOverlay').classList.add('open');
+  pushModalHistory('emailVerifyOverlay');
   lockBodyScroll();
   document.getElementById('emailSendBtn')?.focus();
 }
 
 function closeEmailVerify() {
-  document.getElementById('emailVerifyOverlay').classList.remove('open');
+  const el = document.getElementById('emailVerifyOverlay');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
   unlockBodyScroll();
   _clearResendTimer();
   _pendingVerifyCallback = null;
+  popModalHistory();
 }
 
 function handleEmailOverlay(e) {
@@ -6165,13 +6142,17 @@ async function doSignOut() {
 function openProfile() {
   document.getElementById('profileSidebar').classList.add('open');
   document.getElementById('profileBackdrop').classList.add('open');
+  pushModalHistory('profileSidebar');
   lockBodyScroll();
   loadBookingHistory();
 }
 function closeProfile() {
-  document.getElementById('profileSidebar').classList.remove('open');
+  const sidebar = document.getElementById('profileSidebar');
+  if (!sidebar.classList.contains('open')) return;
+  sidebar.classList.remove('open');
   document.getElementById('profileBackdrop').classList.remove('open');
   unlockBodyScroll();
+  popModalHistory();
 }
 function switchProfileTab(tab, btn) {
   document.querySelectorAll('.profile-panel').forEach(p => p.classList.remove('active'));
@@ -6996,12 +6977,16 @@ async function openAptModal(id) {
   // Open overlay
   lockBodyScroll();
   document.getElementById('aptOverlay').classList.add('open');
+  pushModalHistory('aptOverlay');
 }
 
 function closeApt() {
-  document.getElementById('aptOverlay').classList.remove('open');
+  const overlay = document.getElementById('aptOverlay');
+  if (!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
   unlockBodyScroll();
   closeCalListeners();
+  popModalHistory();
 }
 
 function handleAptBdrop(e) {
@@ -7011,6 +6996,7 @@ function handleAptBdrop(e) {
 // ── RULES & CANCELLATION MODAL ───────────────────────────────
 function openRulesModal(section) {
   document.getElementById('rulesOverlay').classList.add('open');
+  pushModalHistory('rulesOverlay');
   document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => {
     if (section === 'cancel') {
@@ -7021,9 +7007,12 @@ function openRulesModal(section) {
   });
 }
 function closeRulesModal() {
-  document.getElementById('rulesOverlay').classList.remove('open');
+  const el = document.getElementById('rulesOverlay');
+  if (!el.classList.contains('open')) return;
+  el.classList.remove('open');
   const aptOpen = document.getElementById('aptOverlay')?.classList.contains('open');
   if (!aptOpen) document.body.style.overflow = '';
+  popModalHistory();
 }
 function handleRulesBdrop(e) {
   if (e.target === document.getElementById('rulesOverlay')) closeRulesModal();
@@ -7123,7 +7112,15 @@ function aptBook() {
   const aptId    = currentAptData.id;
   const checkIn  = _calCheckIn;
   const checkOut = _calCheckOut;
-  closeApt();
+  // Inline apt close — skip closeApt() to avoid popModalHistory here;
+  // _replaceNextHistoryPush swaps the apt history entry for pay in place.
+  const _aptEl = document.getElementById('aptOverlay');
+  if (_aptEl.classList.contains('open')) {
+    _aptEl.classList.remove('open');
+    unlockBodyScroll();
+    closeCalListeners();
+  }
+  _replaceNextHistoryPush = true;
   openPay(aptId, checkIn, checkOut);
 }
 
@@ -7134,7 +7131,6 @@ async function loadHostCardForModal() {
 // Keyboard nav for apt modal
 document.addEventListener('keydown', function(e) {
   if (!document.getElementById('aptOverlay').classList.contains('open')) return;
-  if (e.key === 'Escape')     closeApt();
   if (e.key === 'ArrowLeft')  aptNav(-1);
   if (e.key === 'ArrowRight') aptNav(1);
 });
@@ -7151,98 +7147,6 @@ function toggleAccountFields() {
   if (f) f.classList.toggle('show');
 }
 
-// ============================================================
-// CAROUSEL  (scroll-snap based — no JS transform needed)
-// ============================================================
-let carouselIndex = 0;
-let carouselTotal = 0;
-
-function _isDesktop() { return window.innerWidth >= 768; }
-
-function getCarouselCardWidth() {
-  const basis = window.innerWidth < 768 ? window.innerWidth - 100 : 380;
-  return basis + 24; // card + gap
-}
-
-function initCarousel(count) {
-  carouselTotal = count;
-  const wrapper = document.getElementById('carouselWrapper');
-  const nav     = document.getElementById('carouselNav');
-  const dotsEl  = document.getElementById('carouselDots');
-  if (!wrapper || !nav) return;
-
-  carouselIndex = 0;
-  wrapper.scrollLeft = 0;
-
-  // Desktop: CSS grid handles layout; disable carousel
-  if (_isDesktop()) {
-    nav.style.display = 'none';
-    if (dotsEl) dotsEl.innerHTML = '';
-    return;
-  }
-
-  if (count <= 1) { nav.style.display = 'none'; return; }
-
-  const cardW   = getCarouselCardWidth();
-  const ww      = wrapper.offsetWidth || window.innerWidth;
-  const visible = Math.max(1, Math.floor(ww / cardW));
-  const pages   = Math.max(1, count - visible + 1);
-
-  nav.style.display = pages > 1 ? '' : 'none';
-  if (pages > 1) {
-    dotsEl.innerHTML = Array.from({length: pages}, (_, i) =>
-      `<button class="carousel-dot${i===0?' active':''}" onclick="carouselGoTo(${i})"></button>`
-    ).join('');
-  }
-
-  updateCarouselUI(visible, pages);
-
-  // Sync dots when user swipes natively — attach once only
-  if (!wrapper.dataset.scrollInited) {
-    wrapper.dataset.scrollInited = '1';
-    let scrollTimer;
-    wrapper.addEventListener('scroll', () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const cw     = getCarouselCardWidth();
-        const newIdx = Math.round(wrapper.scrollLeft / cw);
-        if (newIdx !== carouselIndex) {
-          carouselIndex = newIdx;
-          const ww2  = wrapper.offsetWidth || window.innerWidth;
-          const vis2 = Math.max(1, Math.floor(ww2 / cw));
-          const pgs2 = Math.max(1, carouselTotal - vis2 + 1);
-          updateCarouselUI(vis2, pgs2);
-        }
-      }, 80);
-    }, { passive: true });
-  }
-
-}
-
-function carouselGoTo(idx) {
-  const wrapper = document.getElementById('carouselWrapper');
-  if (!wrapper) return;
-
-  const cardW   = getCarouselCardWidth();
-  const ww      = wrapper.offsetWidth || window.innerWidth;
-  const visible = Math.max(1, Math.floor(ww / cardW));
-  const pages   = Math.max(1, carouselTotal - visible + 1);
-
-  carouselIndex = Math.max(0, Math.min(idx, pages - 1));
-  // iOS Safari ignores scrollTo({behavior:'smooth'}) when scroll-snap-type is active;
-  // setting scrollLeft directly + CSS scroll-behavior:smooth works reliably.
-  wrapper.scrollLeft = carouselIndex * cardW;
-  updateCarouselUI(visible, pages);
-}
-
-function carouselPrev() { carouselGoTo(carouselIndex - 1); }
-function carouselNext() { carouselGoTo(carouselIndex + 1); }
-
-function updateCarouselUI(visible, pages) {
-  document.querySelectorAll('.carousel-dot').forEach((d, i) =>
-    d.classList.toggle('active', i === carouselIndex)
-  );
-}
 
 // ── Scroll to section (for footer links) ─────────────────────
 function scrollToSection(id) {
@@ -7250,27 +7154,6 @@ function scrollToSection(id) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ============================================================
-// CARD IMAGE NAVIGATION
-// ============================================================
-function cardImgNav(id, dir) {
-  const slides = document.getElementById('slides_' + id);
-  if (!slides) return;
-  const all = slides.querySelectorAll('.card-slide');
-  if (!all.length) return;
-  const cur = slides.querySelector('.card-slide.active');
-  let idx = Array.from(all).indexOf(cur);
-  idx = (idx + dir + all.length) % all.length;
-  cardImgGo(id, idx);
-}
-
-function cardImgGo(id, idx) {
-  const slides = document.getElementById('slides_' + id);
-  const dots   = document.getElementById('dots_' + id);
-  if (!slides) return;
-  slides.querySelectorAll('.card-slide').forEach((s, i) => s.classList.toggle('active', i === idx));
-  if (dots) dots.querySelectorAll('.card-img-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
-}
 
 // ============================================================
 // INIT

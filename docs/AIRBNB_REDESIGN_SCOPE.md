@@ -168,6 +168,8 @@ Base unit: 4px
 
 **This is the checkpoint to message Mr Joe.** Send him the preview URL after this ships. Real evidence of progress in the direction he asked for.
 
+- **Day 3+ (July 27) — ✅ Shipped:** Day 3 UI (guest stepper, form fields, icon swaps), Step 2 booking summary structural rebuild, listings-load retry fix. Diagnosed and shipped iOS Safari pointer-events fix to preview (cards now tappable). Two new bugs surfaced during testing, logged for July 28.
+
 ### Day 4 (Tuesday, July 27) — Property Detail Modal Rebuild
 
 **Ship:** New Airbnb-style property detail view.
@@ -267,3 +269,23 @@ By end of Friday, July 30:
 
 
 - **Dark mode visual consistency during Day 1-5:** dark mode will look visually mixed (new lilac accents on old bronze-era dark rules) until Day 6-7 completes the dark mode pass. This is a known temporary state, not a bug.
+
+## Known Bugs Deferred (Not Blockers, Track Here)
+
+Bugs identified during this sprint that were consciously deferred rather than fixed. Log new deferrals here so future-you doesn't rediscover them.
+
+- **Intermittent modal-render bug** (~1 in 20 tries, multi-device confirmed): "Book Residence" modal opens with header + stepper visible but form fields fail to render. Reload fixes. Not yet diagnosed. Discovered July 23 evening.
+
+- **Listings-load race condition** (originally deferred Wednesday July 23, rediscovered Saturday July 26 after Day 2): cold page load sometimes shows "No residences available yet" until reload. Root cause: `getListings()` fires before Firestore's underlying network connection is ready, returns empty result silently. Rules allow public reads (verified), so it's not permissions. Fix planned Saturday afternoon: add retry-on-empty logic to getListings() with 500ms delay. FIXING NOW.
+
+- **Carousel horizontal swipe on real mobile devices**: works in DevTools mobile emulation, unresponsive on real phones. Root cause diagnosed as touch-action interaction with card-img-arrows overlay. Bug 3 fix attempt on July 22 caused regression, was reverted. Requires proper cross-device testing plus new touch handler design.
+
+- **Browser back button on modals**: pressing browser back while a modal is open exits the entire site to previous browser history (usually search/Google) instead of closing the modal. Requires History API integration.
+
+- **Sometimes-broken modal close button**: intermittent, low frequency, unclear reproduction steps.
+
+- **Card carousel scroll-snap on left-swipe (July 27 evening):** When user swipes right through all apartment cards then tries to swipe left back to previous card, layout displays two overlapping cards at edge of viewport. Screenshot captured. Likely CSS scroll-snap issue in .listing-card or its container. Fix planned July 28.
+
+- **Tap-delay on property cards (July 27 evening, post pointer-events fix):** After shipping pointer-events:none on .card-img-arrows, cards do open on tap but sometimes require 2+ taps. May be residual iOS Safari click delay or timing issue introduced by the fix. Fix planned July 28, requires same DevTools observation discipline as tonight's diagnosis.
+
+- **Property detail modal close button hidden on iPhone portrait (July 30):** Close button (.apt-modal-close positioned top:16px right:16px) is clipped by modal container on iPhone portrait orientation only. Visible on landscape and desktop Chrome DevTools mobile emulation. Likely modal container overflow or width issue. Expected to be resolved by Day 4 property detail modal rebuild.

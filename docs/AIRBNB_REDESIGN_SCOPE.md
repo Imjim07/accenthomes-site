@@ -191,6 +191,8 @@ Base unit: 4px
 
 **Estimated time:** 5-6 hours
 
+- **Day 5+ Thursday (July 30) — ✅ Shipped:** Full apartment section rebuild (single-column vertical, editorial overlay). Tap-delay bug fix (WhatsApp widget pointer-events routing). History API integration across 11 modals with stacking, aptBook programmatic transition, escape key consolidation. Day 4 apt modal refinement — typography (Hanken Grotesk 500/600), portrait close button clipping fix. All shipped to preview only per sprint strategy. Production remains on pre-sprint state.
+
 ### Day 5 (Wednesday, July 28) — Homepage Hero & Nav Polish
 
 **Ship:** Hero section and top navigation redesign.
@@ -289,3 +291,6 @@ Bugs identified during this sprint that were consciously deferred rather than fi
 - **Tap-delay on property cards (July 27 evening, post pointer-events fix):** After shipping pointer-events:none on .card-img-arrows, cards do open on tap but sometimes require 2+ taps. May be residual iOS Safari click delay or timing issue introduced by the fix. Fix planned July 28, requires same DevTools observation discipline as tonight's diagnosis.
 
 - **Property detail modal close button hidden on iPhone portrait (July 30):** Close button (.apt-modal-close positioned top:16px right:16px) is clipped by modal container on iPhone portrait orientation only. Visible on landscape and desktop Chrome DevTools mobile emulation. Likely modal container overflow or width issue. Expected to be resolved by Day 4 property detail modal rebuild.
+
+
+- **Day 6+ (August 3-5) — ✅ Shipped:** Removed neighbourhood promo banner. Replaced hero image with Unsplash bedroom photo. Restructured hero to fill full viewport from page top. Nav position: sticky → fixed → absolute (final). Nav now scrolls away with hero as its own section rather than persistent viewport element. Scroll threshold at 100vh.

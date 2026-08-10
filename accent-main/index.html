@@ -4340,7 +4340,10 @@ body.login-open {
 // SCROLL LOCK (iOS-safe: position:fixed trick)
 // ============================================================
 let _scrollLockY = 0;
+let _lockDepth = 0;
 function lockBodyScroll() {
+  _lockDepth++;
+  if (_lockDepth > 1) return;  // Already locked from outer modal — don't overwrite scrollY
   _scrollLockY = window.scrollY;
   document.body.style.position  = 'fixed';
   document.body.style.top       = '-' + _scrollLockY + 'px';
@@ -4349,12 +4352,14 @@ function lockBodyScroll() {
   document.body.style.overflow  = 'hidden';
 }
 function unlockBodyScroll() {
+  _lockDepth = Math.max(0, _lockDepth - 1);
+  if (_lockDepth > 0) return;  // Outer modal still open — don't clear body styles
   document.body.style.position  = '';
   document.body.style.top       = '';
   document.body.style.left      = '';
   document.body.style.right     = '';
   document.body.style.overflow  = '';
-  window.scrollTo(0, _scrollLockY);
+  // Scroll restore moved to popstate handler for iOS Safari compatibility
 }
 
 // ============================================================
@@ -4697,20 +4702,33 @@ function popModalHistory() {
   if (_modalBackStack.length === 0) return;
   _modalBackStack.pop();
   _backNavInProgress = true;
+  const savedY = _scrollLockY;
   history.back();
+  // Restore scroll after history.back() has settled, defeating iOS Safari's async scroll behavior
+  setTimeout(() => {
+    window.scrollTo(0, savedY);
+  }, 0);
 }
 
 window.addEventListener('popstate', () => {
   if (_backNavInProgress) {
     _backNavInProgress = false;
+    const savedY = _scrollLockY;
+    setTimeout(() => {
+      window.scrollTo(0, savedY);
+    }, 0);
     return;
   }
   const modalToClose = _modalBackStack[_modalBackStack.length - 1];
   if (!modalToClose) return;
   _backNavInProgress = true;
   _modalBackStack.pop();
+  const savedY = _scrollLockY;
   _closeModalById(modalToClose);
   _backNavInProgress = false;
+  setTimeout(() => {
+    window.scrollTo(0, savedY);
+  }, 0);
 });
 
 document.addEventListener('keydown', e => {
@@ -7057,15 +7075,7 @@ function aptBook() {
   const aptId    = currentAptData.id;
   const checkIn  = _calCheckIn;
   const checkOut = _calCheckOut;
-  // Inline apt close — skip closeApt() to avoid popModalHistory here;
-  // _replaceNextHistoryPush swaps the apt history entry for pay in place.
-  const _aptEl = document.getElementById('aptOverlay');
-  if (_aptEl.classList.contains('open')) {
-    _aptEl.classList.remove('open');
-    unlockBodyScroll();
-    closeCalListeners();
-  }
-  _replaceNextHistoryPush = true;
+  // Keep apt modal open — payment stacks on top
   openPay(aptId, checkIn, checkOut);
 }
 
